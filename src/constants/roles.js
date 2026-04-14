@@ -61,9 +61,9 @@ export const ROLES = {
 }
 
 export const DEMO_USERS = [
-  { id: 'u1', name: 'Ana Lima',    email: 'ana.lima@stone.com.br',    role: 'comprador',   avatar: 'AL' },
-  { id: 'u2', name: 'Bruno Costa', email: 'bruno.costa@stone.com.br', role: 'coordenador', avatar: 'BC' },
-  { id: 'u3', name: 'Carla Melo',  email: 'carla.melo@stone.com.br',  role: 'gestor',      avatar: 'CM' },
-  { id: 'u4', name: 'Diego Faria', email: 'diego.faria@stone.com.br', role: 'diretor',     avatar: 'DF' },
-  { id: 'u5', name: 'Paulo Vidal', email: 'paulo.vidal@stone.com.br', role: 'admin',       avatar: 'PV' },
+  { id:'u1', name:'Ana Lima',    email:'ana.lima@stone.com.br',    role:'comprador',   avatar:'AL', passwordHash:null, mustChangePassword:true  },
+  { id:'u2', name:'Bruno Costa', email:'bruno.costa@stone.com.br', role:'coordenador', avatar:'BC', passwordHash:null, mustChangePassword:true  },
+  { id:'u3', name:'Carla Melo',  email:'carla.melo@stone.com.br',  role:'gestor',      avatar:'CM', passwordHash:null, mustChangePassword:true  },
+  { id:'u4', name:'Diego Faria', email:'diego.faria@stone.com.br', role:'diretor',     avatar:'DF', passwordHash:null, mustChangePassword:true  },
+  { id:'u5', name:'Paulo Vidal', email:'paulo.vidal@stone.com.br', role:'admin',       avatar:'PV', passwordHash:null, mustChangePassword:false },
 ]

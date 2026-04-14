@@ -1,12 +1,13 @@
-import { LayoutDashboard, BarChart2, HelpCircle, Settings, LogOut } from 'lucide-react'
+import { LayoutDashboard, BarChart2, HelpCircle, Settings, LogOut, PieChart } from 'lucide-react'
 import { cn } from '../../utils/cn.js'
 import useAppStore from '../../store/useAppStore.js'
 import { ROLES } from '../../constants/roles.js'
 
 const NAV_ITEMS = [
-  { id: 'kanban', icon: LayoutDashboard, label: 'Kanban' },
-  { id: 'analytics', icon: BarChart2, label: 'Analytics' },
-  { id: 'help', icon: HelpCircle, label: 'Guia' },
+  { id: 'kanban',    icon: LayoutDashboard, label: 'Kanban' },
+  { id: 'analytics', icon: BarChart2,       label: 'Analytics' },
+  { id: 'category',  icon: PieChart,        label: 'Categorias' },
+  { id: 'help',      icon: HelpCircle,      label: 'Guia' },
 ]
 
 export function Sidebar() {
