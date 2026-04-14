@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Database, Key, Grid, CheckCircle, XCircle, Loader, ExternalLink, Eye, EyeOff, RefreshCw } from 'lucide-react'
+import { Database, Key, Grid3x3, CheckCircle, XCircle, Loader2, ExternalLink, Eye, EyeOff, RefreshCw } from 'lucide-react'
 import useAppStore from '../../store/useAppStore.js'
 
 export function SheetsConfig() {
@@ -131,7 +131,7 @@ export function SheetsConfig() {
         {/* Range */}
         <div>
           <label className="text-sm font-medium text-gray-700 mb-1.5 block flex items-center gap-2">
-            <Grid size={13} className="text-gray-400" />
+            <Grid3x3 size={13} className="text-gray-400" />
             Intervalo (Range)
           </label>
           <input
@@ -172,7 +172,7 @@ export function SheetsConfig() {
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ backgroundColor: '#0D3125' }}
           >
-            {sheetsLoading ? <Loader size={13} className="animate-spin" /> : <Database size={13} />}
+            {sheetsLoading ? <Loader2 size={13} className="animate-spin" /> : <Database size={13} />}
             {sheetsLoading ? 'Testando…' : 'Testar Conexão'}
           </button>
           <button onClick={resetToMockData}
