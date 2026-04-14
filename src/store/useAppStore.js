@@ -179,7 +179,7 @@ const useAppStore = create(
       customFields: SEED_CUSTOM_FIELDS,
 
       // Google Sheets
-      sheetsConfig: { sheetId: '', apiKey: '', range: 'Sheet1!A:I' },
+      sheetsConfig: { webAppUrl: '', sheetId: '', apiKey: '', range: 'Export!A:I' },
       sheetsData: MOCK_SHEETS_DATA,
       sheetsLoading: false,
       sheetsError: null,
@@ -439,7 +439,7 @@ const useAppStore = create(
         const { sheetsConfig } = get()
         set({ sheetsLoading: true, sheetsError: null })
         try {
-          const data = await fetchSheetData(sheetsConfig.sheetId, sheetsConfig.apiKey, sheetsConfig.range)
+          const data = await fetchSheetData(sheetsConfig.webAppUrl)
           set({ sheetsData: data, sheetsLoading: false })
           return { success: true, count: data.length }
         } catch (err) {
@@ -478,7 +478,8 @@ const useAppStore = create(
         }
         // Graceful migrations
         if (!state.customFields)  state.customFields  = SEED_CUSTOM_FIELDS
-        if (!state.sheetsConfig) state.sheetsConfig = { sheetId:'', apiKey:'', range:'Sheet1!A:I' }
+        if (!state.sheetsConfig) state.sheetsConfig = { webAppUrl:'', sheetId:'', apiKey:'', range:'Export!A:I' }
+        if (!state.sheetsConfig.webAppUrl) state.sheetsConfig.webAppUrl = ''
         if (!state.sheetsData)  state.sheetsData  = MOCK_SHEETS_DATA
         // Add password fields to users that don't have them
         if (state.allUsers) {
