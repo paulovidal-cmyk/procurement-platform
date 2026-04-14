@@ -4,7 +4,7 @@ import { calculateSaving } from '../algorithms/savingCalculator.js'
 import { calculateVPL } from '../algorithms/vplCalculator.js'
 import { routeCard } from '../algorithms/approvalRouter.js'
 import { hashPassword } from '../algorithms/crypto.js'
-import { fetchCsvData } from '../services/csvService.js'
+import { fetchSheetData } from '../services/googleSheets.js'
 import { DEMO_USERS } from '../constants/roles.js'
 import { MOCK_SHEETS_DATA } from '../data/mockSheetsData.js'
 
@@ -178,10 +178,11 @@ const useAppStore = create(
       // Custom Fields
       customFields: SEED_CUSTOM_FIELDS,
 
-      // CSV Data (Google Sheets "Publicar na Web")
-      csvData: MOCK_SHEETS_DATA,
-      csvLoading: false,
-      csvError: null,
+      // Google Sheets
+      sheetsConfig: { sheetId: '', apiKey: '', range: 'Sheet1!A:I' },
+      sheetsData: MOCK_SHEETS_DATA,
+      sheetsLoading: false,
+      sheetsError: null,
 
       // Search
       searchQuery: '',
@@ -430,21 +431,25 @@ const useAppStore = create(
         })
       },
 
-      // ── CSV Data ──────────────────────────────────────────────────────────────
-      loadCsvData: async () => {
-        set({ csvLoading: true, csvError: null })
+      // ── Google Sheets ─────────────────────────────────────────────────────────
+      updateSheetsConfig: (config) =>
+        set(s => ({ sheetsConfig: { ...s.sheetsConfig, ...config } })),
+
+      loadSheetsData: async () => {
+        const { sheetsConfig } = get()
+        set({ sheetsLoading: true, sheetsError: null })
         try {
-          const data = await fetchCsvData()
-          set({ csvData: data, csvLoading: false })
+          const data = await fetchSheetData(sheetsConfig.sheetId, sheetsConfig.apiKey, sheetsConfig.range)
+          set({ sheetsData: data, sheetsLoading: false })
           return { success: true, count: data.length }
         } catch (err) {
-          set({ csvLoading: false, csvError: err.message })
+          set({ sheetsLoading: false, sheetsError: err.message })
           return { success: false, error: err.message }
         }
       },
 
       resetToMockData: () =>
-        set({ csvData: MOCK_SHEETS_DATA, csvError: null }),
+        set({ sheetsData: MOCK_SHEETS_DATA, sheetsError: null }),
     }),
     {
       name: 'procurement-store-v3',
@@ -459,7 +464,8 @@ const useAppStore = create(
         allUsers:        state.allUsers,
         pendingUsers:    state.pendingUsers,
         customFields:    state.customFields,
-        csvData:         state.csvData,
+        sheetsConfig:    state.sheetsConfig,
+        sheetsData:      state.sheetsData,
       }),
       onRehydrateStorage: () => (state) => {
         if (!state) return
@@ -472,7 +478,8 @@ const useAppStore = create(
         }
         // Graceful migrations
         if (!state.customFields)  state.customFields  = SEED_CUSTOM_FIELDS
-        if (!state.csvData) state.csvData = MOCK_SHEETS_DATA
+        if (!state.sheetsConfig) state.sheetsConfig = { sheetId:'', apiKey:'', range:'Sheet1!A:I' }
+        if (!state.sheetsData)  state.sheetsData  = MOCK_SHEETS_DATA
         // Add password fields to users that don't have them
         if (state.allUsers) {
           state.allUsers = state.allUsers.map(u => ({

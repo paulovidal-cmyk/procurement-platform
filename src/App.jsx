@@ -31,7 +31,7 @@ export default function App() {
   const isKanban = currentPage === 'kanban'
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-slate-100">
+    <div className="flex flex-col h-screen overflow-hidden" style={{ background: '#e9f3f0' }}>
       <TopBar />
       <main className={`flex-1 overflow-hidden ${isKanban ? 'p-3' : ''}`}>
         <PageComponent />

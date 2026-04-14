@@ -45,20 +45,20 @@ export function Home() {
   const role        = ROLES[currentUser?.role]
 
   return (
-    <div className="h-full overflow-y-auto" style={{ background: '#0D3125' }}>
+    <div className="h-full overflow-y-auto" style={{ background: '#e9f3f0' }}>
       <div className="max-w-5xl mx-auto px-8 py-12 space-y-12">
 
         {/* Hero */}
         <div className="space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold"
-            style={{ background: 'rgba(16,203,154,0.12)', color: '#10CB9A', border: '1px solid rgba(16,203,154,0.25)' }}>
+            style={{ background: 'rgba(13,49,37,0.08)', color: '#0D3125', border: '1px solid rgba(13,49,37,0.15)' }}>
             Hub de Compras · Stone
           </div>
-          <h1 className="text-4xl font-black leading-tight" style={{ color: '#B6ECA9' }}>
+          <h1 className="text-4xl font-black leading-tight" style={{ color: '#0D3125' }}>
             Olá, {currentUser?.name?.split(' ')[0]}.<br />
             <span style={{ color: '#10CB9A' }}>O que vamos fazer hoje?</span>
           </h1>
-          <p className="text-lg max-w-xl" style={{ color: 'rgba(182,236,169,0.65)' }}>
+          <p className="text-lg max-w-xl" style={{ color: '#4a7a68' }}>
             Plataforma integrada de procurement — da negociação à aprovação, com dados e governança em tempo real.
           </p>
         </div>
@@ -68,12 +68,12 @@ export function Home() {
           {STATS.map(s => {
             const Icon = s.icon
             return (
-              <div key={s.label} className="rounded-2xl p-5"
-                style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(182,236,169,0.1)' }}>
+              <div key={s.label} className="rounded-2xl p-5 bg-white shadow-sm"
+                style={{ border: '1px solid rgba(13,49,37,0.08)' }}>
                 <Icon size={18} className="mb-3" style={{ color: '#10CB9A' }} />
-                <p className="text-2xl font-black" style={{ color: '#B6ECA9' }}>{s.value}</p>
-                <p className="text-sm font-medium mt-0.5" style={{ color: 'rgba(182,236,169,0.7)' }}>{s.label}</p>
-                <p className="text-xs mt-0.5" style={{ color: 'rgba(182,236,169,0.4)' }}>{s.sub}</p>
+                <p className="text-2xl font-black" style={{ color: '#0D3125' }}>{s.value}</p>
+                <p className="text-sm font-medium mt-0.5" style={{ color: '#0D3125' }}>{s.label}</p>
+                <p className="text-xs mt-0.5" style={{ color: '#4a7a68' }}>{s.sub}</p>
               </div>
             )
           })}
@@ -82,7 +82,7 @@ export function Home() {
         {/* Modules */}
         <div>
           <p className="text-sm font-semibold mb-4 uppercase tracking-widest"
-            style={{ color: 'rgba(182,236,169,0.4)' }}>Módulos</p>
+            style={{ color: 'rgba(13,49,37,0.4)' }}>Módulos</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {MODULES.map(mod => {
               const Icon = mod.icon
@@ -111,8 +111,8 @@ export function Home() {
                         style={{ color: mod.color }} />
                     )}
                   </div>
-                  <p className="font-bold text-sm mb-2" style={{ color: '#B6ECA9' }}>{mod.label}</p>
-                  <p className="text-xs leading-relaxed" style={{ color: 'rgba(182,236,169,0.55)' }}>{mod.desc}</p>
+                  <p className="font-bold text-sm mb-2" style={{ color: '#0D3125' }}>{mod.label}</p>
+                  <p className="text-xs leading-relaxed" style={{ color: '#4a7a68' }}>{mod.desc}</p>
                 </button>
               )
             })}
@@ -120,8 +120,8 @@ export function Home() {
         </div>
 
         {/* Footer */}
-        <div className="pt-4 border-t" style={{ borderColor: 'rgba(182,236,169,0.08)' }}>
-          <p className="text-xs text-center" style={{ color: 'rgba(182,236,169,0.25)' }}>
+        <div className="pt-4 border-t" style={{ borderColor: 'rgba(13,49,37,0.1)' }}>
+          <p className="text-xs text-center" style={{ color: 'rgba(13,49,37,0.3)' }}>
             Stone Procurement Platform · {currentUser?.email}
           </p>
         </div>
