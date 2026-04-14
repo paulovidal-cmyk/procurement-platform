@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -109,19 +109,21 @@ function PieTooltip({ active, payload }) {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export function CategoryDashboard() {
-  const sheetsData    = useAppStore(s => s.sheetsData)
-  const sheetsConfig  = useAppStore(s => s.sheetsConfig)
-  const sheetsLoading = useAppStore(s => s.sheetsLoading)
-  const sheetsError   = useAppStore(s => s.sheetsError)
-  const loadSheetsData = useAppStore(s => s.loadSheetsData)
-  const navigate       = useAppStore(s => s.navigate)
+  const csvData      = useAppStore(s => s.csvData)
+  const csvLoading   = useAppStore(s => s.csvLoading)
+  const csvError     = useAppStore(s => s.csvError)
+  const loadCsvData  = useAppStore(s => s.loadCsvData)
 
-  const categories = useMemo(() => [...new Set(sheetsData.map(r => r.categoria))].sort(), [sheetsData])
-  const [selectedCat, setSelectedCat] = useState(categories[0] || '')
+  // Auto-load CSV on first render
+  useEffect(() => { loadCsvData() }, [])
+
+  const categories = useMemo(() => [...new Set(csvData.map(r => r.categoria))].sort(), [csvData])
+  const [selectedCat, setSelectedCat] = useState('')
+  const activeCat = selectedCat || categories[0] || ''
 
   const data = useMemo(() =>
-    selectedCat ? sheetsData.filter(r => r.categoria === selectedCat) : sheetsData,
-    [sheetsData, selectedCat]
+    activeCat ? csvData.filter(r => r.categoria === activeCat) : csvData,
+    [csvData, activeCat]
   )
 
   // KPIs
@@ -162,7 +164,7 @@ export function CategoryDashboard() {
   const top5Names = sortedSuppliers.slice(0,5).map(([n]) => n)
   const news = getMockNews(top5Names)
 
-  const isConnected = sheetsConfig.sheetId && sheetsConfig.apiKey
+  const isConnected = true // CSV público — sempre conectado
 
   return (
     <div className="h-full overflow-y-auto" style={{ background: C.bg }}>
@@ -174,12 +176,9 @@ export function CategoryDashboard() {
             <h1 className="text-2xl font-black" style={{ color: C.text }}>
               Análise de Categoria
             </h1>
-            <p className="text-sm mt-0.5" style={{ color: C.muted }}>
-              {isConnected ? (
-                <span className="flex items-center gap-1.5"><Wifi size={12} style={{ color: C.accent }} /> Conectado ao Google Sheets</span>
-              ) : (
-                <span className="flex items-center gap-1.5"><WifiOff size={12} className="text-amber-400" /> Dados de demonstração · <button onClick={() => navigate('settings')} className="underline" style={{ color: C.accent }}>Conectar planilha</button></span>
-              )}
+            <p className="text-sm mt-0.5 flex items-center gap-1.5" style={{ color: C.muted }}>
+              <Wifi size={12} style={{ color: C.accent }} />
+              {csvLoading ? 'Carregando planilha…' : `${csvData.length} registros · CSV público`}
             </p>
           </div>
 
@@ -187,7 +186,7 @@ export function CategoryDashboard() {
             {/* Category selector */}
             <div className="relative">
               <select
-                value={selectedCat}
+                value={activeCat}
                 onChange={e => setSelectedCat(e.target.value)}
                 className="appearance-none pl-4 pr-9 py-2.5 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 cursor-pointer"
                 style={{ background: C.card, border: `1px solid ${C.border}`, color: C.text,
@@ -199,26 +198,23 @@ export function CategoryDashboard() {
                 style={{ color: C.muted }} />
             </div>
 
-            {/* Reload */}
-            {isConnected && (
-              <button
-                onClick={loadSheetsData}
-                disabled={sheetsLoading}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                style={{ background: C.card, border: `1px solid ${C.border}`, color: C.text }}
-              >
-                <RefreshCw size={13} className={sheetsLoading ? 'animate-spin' : ''} style={{ color: C.accent }} />
-                {sheetsLoading ? 'Carregando…' : 'Atualizar'}
-              </button>
-            )}
+            <button
+              onClick={loadCsvData}
+              disabled={csvLoading}
+              className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+              style={{ background: C.card, border: `1px solid ${C.border}`, color: C.text }}
+            >
+              <RefreshCw size={13} className={csvLoading ? 'animate-spin' : ''} style={{ color: C.accent }} />
+              {csvLoading ? 'Carregando…' : 'Atualizar'}
+            </button>
           </div>
         </div>
 
         {/* Error */}
-        {sheetsError && (
+        {csvError && (
           <div className="rounded-xl px-4 py-3 text-sm flex items-center gap-2 text-red-300"
             style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.3)' }}>
-            Erro ao carregar planilha: {sheetsError}
+            Erro ao carregar CSV: {csvError}
           </div>
         )}
 

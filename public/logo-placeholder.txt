@@ -1,0 +1,3 @@
+Coloque o arquivo do logo Stone aqui com o nome: logo.png
+O arquivo deve ser o logo branco (fundo transparente) para funcionar sobre o fundo verde #0D3125.
+Resolução recomendada: altura de 28-32px.
