@@ -12,13 +12,13 @@ export function AnalyticsHub() {
   const [active, setActive] = useState('category')
 
   return (
-    <div className="flex h-full overflow-hidden" style={{ background: '#0D3125' }}>
+    <div className="flex h-full overflow-hidden" style={{ background: '#e9f3f0' }}>
 
       {/* Internal Sidebar */}
-      <aside className="w-56 flex-shrink-0 flex flex-col py-5 px-3 border-r"
-        style={{ background: '#0A2A1F', borderColor: 'rgba(16,203,154,0.12)' }}>
+      <aside className="w-56 flex-shrink-0 flex flex-col py-5 px-3 border-r bg-white"
+        style={{ borderColor: 'rgba(13,49,37,0.1)' }}>
         <p className="text-[10px] font-bold uppercase tracking-widest px-2 mb-3"
-          style={{ color: 'rgba(182,236,169,0.35)' }}>
+          style={{ color: 'rgba(13,49,37,0.35)' }}>
           Analytics
         </p>
         <nav className="flex flex-col gap-1">
@@ -40,14 +40,14 @@ export function AnalyticsHub() {
                     style={{ background: '#10CB9A' }} />
                 )}
                 <div className="flex items-center gap-2.5">
-                  <Icon size={15} style={{ color: isActive ? '#10CB9A' : 'rgba(182,236,169,0.4)' }} />
+                  <Icon size={15} style={{ color: isActive ? '#10CB9A' : 'rgba(13,49,37,0.35)' }} />
                   <div>
                     <p className="text-xs font-semibold leading-tight"
-                      style={{ color: isActive ? '#B6ECA9' : 'rgba(182,236,169,0.5)' }}>
+                      style={{ color: isActive ? '#0D3125' : 'rgba(13,49,37,0.6)' }}>
                       {item.label}
                     </p>
                     <p className="text-[10px] mt-0.5 leading-tight"
-                      style={{ color: 'rgba(182,236,169,0.3)' }}>
+                      style={{ color: 'rgba(13,49,37,0.35)' }}>
                       {item.desc}
                     </p>
                   </div>

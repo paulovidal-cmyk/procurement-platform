@@ -109,12 +109,12 @@ function PieTooltip({ active, payload }) {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export function CategoryDashboard() {
-  const csvData      = useAppStore(s => s.csvData)
-  const csvLoading   = useAppStore(s => s.csvLoading)
-  const csvError     = useAppStore(s => s.csvError)
-  const loadCsvData  = useAppStore(s => s.loadCsvData)
+  const csvData      = useAppStore(s => s.sheetsData)
+  const csvLoading   = useAppStore(s => s.sheetsLoading)
+  const csvError     = useAppStore(s => s.sheetsError)
+  const loadCsvData  = useAppStore(s => s.loadSheetsData)
 
-  // Auto-load CSV on first render
+  // Auto-load on first render
   useEffect(() => { loadCsvData() }, [])
 
   const categories = useMemo(() => [...new Set(csvData.map(r => r.categoria))].sort(), [csvData])
@@ -164,7 +164,7 @@ export function CategoryDashboard() {
   const top5Names = sortedSuppliers.slice(0,5).map(([n]) => n)
   const news = getMockNews(top5Names)
 
-  const isConnected = true // CSV público — sempre conectado
+  const isConnected = !csvError
 
   return (
     <div className="h-full overflow-y-auto" style={{ background: C.bg }}>
@@ -178,7 +178,7 @@ export function CategoryDashboard() {
             </h1>
             <p className="text-sm mt-0.5 flex items-center gap-1.5" style={{ color: C.muted }}>
               <Wifi size={12} style={{ color: C.accent }} />
-              {csvLoading ? 'Carregando planilha…' : `${csvData.length} registros · CSV público`}
+              {csvLoading ? 'Carregando planilha…' : `${csvData.length} registros · Google Sheets`}
             </p>
           </div>
 
@@ -214,7 +214,7 @@ export function CategoryDashboard() {
         {csvError && (
           <div className="rounded-xl px-4 py-3 text-sm flex items-center gap-2 text-red-300"
             style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.3)' }}>
-            Erro ao carregar CSV: {csvError}
+            Erro ao carregar planilha: {csvError}
           </div>
         )}
 
