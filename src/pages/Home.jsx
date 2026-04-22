@@ -1,4 +1,4 @@
-import { ShoppingCart, BarChart2, Gavel, Settings, ArrowRight, TrendingDown, CheckCircle, Clock } from 'lucide-react'
+import { ShoppingCart, BarChart2, Gavel, ScanLine, ArrowRight, TrendingDown, CheckCircle, Clock } from 'lucide-react'
 import useAppStore from '../store/useAppStore.js'
 import { ROLES } from '../constants/roles.js'
 
@@ -20,6 +20,15 @@ const MODULES = [
     color: '#60A5FA',
     bg: 'rgba(96,165,250,0.08)',
     border: 'rgba(96,165,250,0.25)',
+  },
+  {
+    id: 'raiox',
+    icon: ScanLine,
+    label: 'Raio-X de Preços',
+    desc: 'Monte cost breakdowns com indicadores econômicos e compare o should cost do fornecedor.',
+    color: '#A78BFA',
+    bg: 'rgba(167,139,250,0.08)',
+    border: 'rgba(167,139,250,0.25)',
   },
   {
     id: 'leilao',
@@ -83,7 +92,7 @@ export function Home() {
         <div>
           <p className="text-sm font-semibold mb-4 uppercase tracking-widest"
             style={{ color: 'rgba(13,49,37,0.4)' }}>Módulos</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
             {MODULES.map(mod => {
               const Icon = mod.icon
               const isLocked = mod.id === 'leilao'

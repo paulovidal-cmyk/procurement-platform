@@ -7,6 +7,7 @@ import { Login } from './pages/Login.jsx'
 import { Home } from './pages/Home.jsx'
 import { AnalyticsHub } from './pages/AnalyticsHub.jsx'
 import { LeilaoEletronico } from './pages/LeilaoEletronico.jsx'
+import { RaioXPrecos } from './pages/RaioXPrecos.jsx'
 import { Settings } from './pages/Settings.jsx'
 import { Help } from './pages/Help.jsx'
 import useAppStore from './store/useAppStore.js'
@@ -16,6 +17,7 @@ const PAGES = {
   kanban:    KanbanBoard,
   analytics: AnalyticsHub,
   leilao:    LeilaoEletronico,
+  raiox:     RaioXPrecos,
   settings:  Settings,
   help:      Help,
 }
