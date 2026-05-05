@@ -10,16 +10,18 @@ import { LeilaoEletronico } from './pages/LeilaoEletronico.jsx'
 import { RaioXPrecos } from './pages/RaioXPrecos.jsx'
 import { Settings } from './pages/Settings.jsx'
 import { Help } from './pages/Help.jsx'
+import { SupplierRiskShield } from './pages/SupplierRiskShield.jsx'
 import useAppStore from './store/useAppStore.js'
 
 const PAGES = {
-  home:      Home,
-  kanban:    KanbanBoard,
-  analytics: AnalyticsHub,
-  leilao:    LeilaoEletronico,
-  raiox:     RaioXPrecos,
-  settings:  Settings,
-  help:      Help,
+  home:        Home,
+  kanban:      KanbanBoard,
+  analytics:   AnalyticsHub,
+  leilao:      LeilaoEletronico,
+  raiox:       RaioXPrecos,
+  riskshield:  SupplierRiskShield,
+  settings:    Settings,
+  help:        Help,
 }
 
 export default function App() {

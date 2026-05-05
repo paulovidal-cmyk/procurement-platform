@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Settings, Gavel, LayoutDashboard, BarChart2, Home, ScanLine } from 'lucide-react'
+import { Plus, Settings, Gavel, LayoutDashboard, BarChart2, Home, ScanLine, ShieldCheck } from 'lucide-react'
 import { NotificationBell } from '../notifications/NotificationBell.jsx'
 import { ROLES } from '../../constants/roles.js'
 import useAppStore from '../../store/useAppStore.js'
@@ -12,7 +12,8 @@ const NAV = [
   { id: 'kanban',    icon: LayoutDashboard, label: 'Kanban' },
   { id: 'analytics', icon: BarChart2,       label: 'Analytics' },
   { id: 'raiox',     icon: ScanLine,        label: 'Raio-X de Preços' },
-  { id: 'leilao',    icon: Gavel,           label: 'Leilão Eletrônico' },
+  { id: 'leilao',     icon: Gavel,        label: 'Leilão Eletrônico' },
+  { id: 'riskshield', icon: ShieldCheck,  label: 'Risk Shield' },
 ]
 
 function StoneLogo({ onClick }) {

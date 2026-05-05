@@ -1,4 +1,4 @@
-import { ShoppingCart, BarChart2, Gavel, ScanLine, ArrowRight, TrendingDown, CheckCircle, Clock } from 'lucide-react'
+import { ShoppingCart, BarChart2, Gavel, ScanLine, ShieldCheck, ArrowRight, TrendingDown, CheckCircle, Clock } from 'lucide-react'
 import useAppStore from '../store/useAppStore.js'
 import { ROLES } from '../constants/roles.js'
 
@@ -39,6 +39,15 @@ const MODULES = [
     bg: 'rgba(245,158,11,0.08)',
     border: 'rgba(245,158,11,0.25)',
     badge: 'Em breve',
+  },
+  {
+    id: 'riskshield',
+    icon: ShieldCheck,
+    label: 'Supplier Risk Shield',
+    desc: 'Visualização analítica do risco da base de fornecedores com radar de performance e alertas de evidência.',
+    color: '#10CB9A',
+    bg: 'rgba(16,203,154,0.08)',
+    border: 'rgba(16,203,154,0.25)',
   },
 ]
 
