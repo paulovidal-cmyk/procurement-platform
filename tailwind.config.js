@@ -9,10 +9,12 @@ export default {
       colors: {
         // Stone brand
         brand: {
-          DEFAULT: '#10CB9A',
-          hover:   '#0EB68A',
-          dark:    '#0D3125',
-          tint:    'rgba(16,203,154,0.10)',
+          DEFAULT: '#00D26A',
+          hover:   '#00B85B',
+          dark:    '#003F1F',
+          deep:    '#0D3125',
+          soft:    '#C2EAC9',
+          tint:    'rgba(0,210,106,0.10)',
         },
         // Surfaces / borders / ink
         ink:        '#0A0E0C',

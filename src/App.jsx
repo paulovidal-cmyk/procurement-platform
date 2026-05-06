@@ -1,4 +1,4 @@
-import { Sidebar } from './components/layout/Sidebar.jsx'
+import { TopBar } from './components/layout/TopBar.jsx'
 import { KanbanBoard } from './components/kanban/KanbanBoard.jsx'
 import { ProcurementForm } from './components/form/ProcurementForm.jsx'
 import { ApprovalPanel } from './components/approval/ApprovalPanel.jsx'
@@ -30,11 +30,12 @@ export default function App() {
   if (!isAuthenticated) return <Login />
 
   const PageComponent = PAGES[currentPage] || Home
+  const isKanban = currentPage === 'kanban'
 
   return (
-    <div className="flex h-screen overflow-hidden bg-white">
-      <Sidebar />
-      <main className="flex-1 overflow-hidden flex flex-col">
+    <div className="flex flex-col h-screen overflow-hidden bg-white">
+      <TopBar />
+      <main className={`flex-1 overflow-hidden ${isKanban ? 'p-3' : ''}`}>
         <PageComponent />
       </main>
       <ProcurementForm />

@@ -18,11 +18,13 @@
   --text-subtle:   #97A3A0;
 
   /* Brand — Stone */
-  --brand:         #10CB9A;
-  --brand-hover:   #0EB68A;
-  --brand-dark:    #0D3125;
-  --brand-tint:    rgba(16, 203, 154, 0.10);
-  --brand-tint-hover: rgba(16, 203, 154, 0.16);
+  --brand:         #00D26A;        /* Stone green vibrante */
+  --brand-hover:   #00B85B;
+  --brand-dark:    #003F1F;        /* verde profundo p/ ênfase */
+  --brand-deep:    #0D3125;        /* verde-escuro institucional */
+  --brand-soft:    #C2EAC9;        /* mint pastel p/ blocos */
+  --brand-tint:    rgba(0, 210, 106, 0.10);
+  --brand-tint-hover: rgba(0, 210, 106, 0.16);
 
   /* Status */
   --pos:           #10B981;

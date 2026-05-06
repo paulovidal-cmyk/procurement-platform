@@ -4,7 +4,6 @@ import {
 } from 'lucide-react'
 import { LineChart, Line, ResponsiveContainer } from 'recharts'
 import useAppStore from '../store/useAppStore.js'
-import { PageHeader } from '../components/layout/PageHeader.jsx'
 
 const MODULES = [
   {
@@ -42,11 +41,8 @@ export function Home() {
   const firstName   = currentUser?.name?.split(' ')[0]
 
   return (
-    <div className="flex flex-col h-full bg-white">
-      <PageHeader title="Home" />
-
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-6xl mx-auto px-6 py-6 space-y-6">
+    <div className="h-full overflow-y-auto bg-white">
+      <div className="max-w-6xl mx-auto px-6 py-6 space-y-6">
 
           {/* Hero card — saving big number + sparkline */}
           <div className="rounded-2xl border border-line bg-white p-6">
@@ -134,7 +130,6 @@ export function Home() {
               Stone Procurement Platform · {currentUser?.email}
             </p>
           </div>
-        </div>
       </div>
     </div>
   )
