@@ -1,0 +1,178 @@
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+
+export const SEED_SUPPLIERS = [
+  // ─── Embalagens ───────────────────────────────────────────────────────────
+  {
+    id: 's1', fornecedor: 'PackBrasil Ltda', cnpj: '12.345.678/0001-90',
+    categoria: 'Embalagens', subcategoria: 'Embalagens Plásticas', spend: 850000,
+    nota_geral: 82, nota_financeira: 78, nota_inteligencia: 88, nota_risco: 80,
+    fin_situacao: 75, fin_maturidade: 80, fin_exposicao: 79,
+    int_kraljic: 85, int_pedidos: 92, int_ticket: 87, status_risco: 'Baixo',
+    evidencia_titulo: 'PackBrasil expande capacidade produtiva em MG',
+    link_noticia: 'https://exame.com',
+    analise_ia_detalhada: 'Sólida saúde financeira com histórico consistente de entregas on-time (94%). Exposição cambial moderada em insumos importados. Recomenda-se manter contrato atual com revisão anual de preços.',
+  },
+  {
+    id: 's2', fornecedor: 'FlexPack Embalagens', cnpj: '98.765.432/0001-11',
+    categoria: 'Embalagens', subcategoria: 'Embalagens Flexíveis', spend: 320000,
+    nota_geral: 61, nota_financeira: 55, nota_inteligencia: 70, nota_risco: 58,
+    fin_situacao: 50, fin_maturidade: 58, fin_exposicao: 57,
+    int_kraljic: 72, int_pedidos: 68, int_ticket: 70, status_risco: 'Médio',
+    evidencia_titulo: 'FlexPack reporta queda de 15% no faturamento no 2T25',
+    link_noticia: 'https://valor.com.br',
+    analise_ia_detalhada: 'Sinais de deterioração financeira nos últimos 2 trimestres. Índice de liquidez corrente abaixo de 1.2. Recomenda-se monitoramento mensal e início de processo de qualificação de fornecedor alternativo.',
+  },
+  {
+    id: 's3', fornecedor: 'EcoBox Brasil', cnpj: '45.678.901/0001-22',
+    categoria: 'Embalagens', subcategoria: 'Embalagens de Papel', spend: 210000,
+    nota_geral: 90, nota_financeira: 92, nota_inteligencia: 87, nota_risco: 91,
+    fin_situacao: 90, fin_maturidade: 94, fin_exposicao: 92,
+    int_kraljic: 88, int_pedidos: 86, int_ticket: 87, status_risco: 'Baixo',
+    evidencia_titulo: 'EcoBox conquista certificação FSC e expande para mercado europeu',
+    link_noticia: 'https://folha.uol.com.br',
+    analise_ia_detalhada: 'Excelente perfil de risco com certificações internacionais. Alta diversificação de clientes reduz dependência. Candidato prioritário a contrato de longo prazo com cláusula de preço favorecido.',
+  },
+  // ─── TI ───────────────────────────────────────────────────────────────────
+  {
+    id: 's4', fornecedor: 'TechSupply Ltda', cnpj: '33.444.555/0001-66',
+    categoria: 'TI', subcategoria: 'Serviços de TI', spend: 1200000,
+    nota_geral: 74, nota_financeira: 70, nota_inteligencia: 80, nota_risco: 72,
+    fin_situacao: 68, fin_maturidade: 72, fin_exposicao: 70,
+    int_kraljic: 78, int_pedidos: 82, int_ticket: 80, status_risco: 'Médio',
+    evidencia_titulo: 'TechSupply anuncia reestruturação societária com novo sócio-investidor',
+    link_noticia: 'https://computerworld.com.br',
+    analise_ia_detalhada: 'Fornecedor de alto spend com score limítrofe. Reestruturação societária gera incerteza sobre continuidade de contratos. Recomenda-se due diligence reforçada e inclusão de cláusula de continuidade no próximo contrato.',
+  },
+  {
+    id: 's5', fornecedor: 'CloudMaster Brasil', cnpj: '77.888.999/0001-55',
+    categoria: 'TI', subcategoria: 'Cloud & Infra', spend: 2100000,
+    nota_geral: 88, nota_financeira: 86, nota_inteligencia: 91, nota_risco: 87,
+    fin_situacao: 85, fin_maturidade: 88, fin_exposicao: 85,
+    int_kraljic: 93, int_pedidos: 90, int_ticket: 90, status_risco: 'Baixo',
+    evidencia_titulo: 'CloudMaster recebe aporte de R$ 80M em rodada Série B',
+    link_noticia: 'https://startups.com.br',
+    analise_ia_detalhada: 'Fornecedor crítico de maior spend com excelente score. SLA cumprido em 98.5% dos meses. Parceria estratégica recomendada. Explorar expansão de escopo e contrato plurianual com desconto volumétrico.',
+  },
+  {
+    id: 's6', fornecedor: 'DevOps Solutions', cnpj: '11.222.333/0001-44',
+    categoria: 'TI', subcategoria: 'Desenvolvimento', spend: 480000,
+    nota_geral: 44, nota_financeira: 40, nota_inteligencia: 52, nota_risco: 40,
+    fin_situacao: 38, fin_maturidade: 42, fin_exposicao: 40,
+    int_kraljic: 55, int_pedidos: 50, int_ticket: 51, status_risco: 'Alto',
+    evidencia_titulo: 'DevOps Solutions tem pendência fiscal ativa na Receita Federal',
+    link_noticia: 'https://cnpj.info',
+    analise_ia_detalhada: 'Perfil de alto risco. Pendências fiscais ativas com dívida estimada em R$ 2.1M. Histórico de atrasos (OTIF 71%). Recomenda-se suspender novos pedidos e iniciar processo de substituição imediata.',
+  },
+  // ─── Matéria-Prima ────────────────────────────────────────────────────────
+  {
+    id: 's7', fornecedor: 'RawMat Brasil', cnpj: '55.666.777/0001-33',
+    categoria: 'Matéria-Prima', subcategoria: 'Insumos Químicos', spend: 3400000,
+    nota_geral: 79, nota_financeira: 75, nota_inteligencia: 83, nota_risco: 79,
+    fin_situacao: 72, fin_maturidade: 77, fin_exposicao: 76,
+    int_kraljic: 82, int_pedidos: 84, int_ticket: 83, status_risco: 'Baixo',
+    evidencia_titulo: 'RawMat fecha acordo de fornecimento com grupo europeu de químicos',
+    link_noticia: 'https://quimica.com.br',
+    analise_ia_detalhada: 'Fornecedor robusto em insumos críticos. Alta dependência de um único hub logístico representa risco operacional moderado. Recomenda-se contrato de estoque de segurança equivalente a 45 dias de consumo.',
+  },
+  {
+    id: 's8', fornecedor: 'AgroInsumos SP', cnpj: '22.333.444/0001-77',
+    categoria: 'Matéria-Prima', subcategoria: 'Insumos Agrícolas', spend: 870000,
+    nota_geral: 56, nota_financeira: 52, nota_inteligencia: 61, nota_risco: 55,
+    fin_situacao: 50, fin_maturidade: 54, fin_exposicao: 52,
+    int_kraljic: 63, int_pedidos: 60, int_ticket: 60, status_risco: 'Médio',
+    evidencia_titulo: 'Seca severa afeta produção da AgroInsumos no 2T25',
+    link_noticia: 'https://agrolink.com.br',
+    analise_ia_detalhada: 'Score médio com tendência de deterioração por evento climático. Exposição sazonal elevada a condições meteorológicas. Recomenda-se hedge de preço e diversificação de fornecimento para produtos de maior criticidade.',
+  },
+  {
+    id: 's9', fornecedor: 'MetalBase Industrial', cnpj: '88.999.000/0001-88',
+    categoria: 'Matéria-Prima', subcategoria: 'Metais e Ligas', spend: 1560000,
+    nota_geral: 83, nota_financeira: 80, nota_inteligencia: 88, nota_risco: 81,
+    fin_situacao: 78, fin_maturidade: 82, fin_exposicao: 80,
+    int_kraljic: 87, int_pedidos: 89, int_ticket: 88, status_risco: 'Baixo',
+    evidencia_titulo: 'MetalBase investe R$ 45M em nova linha de produção de ligas especiais',
+    link_noticia: 'https://metalurgia.com.br',
+    analise_ia_detalhada: 'Fornecedor estratégico com excelente histórico. Investimento em capacidade produtiva demonstra solvência. Score de inteligência elevado reflete alta previsibilidade de pedidos e ticket médio estável.',
+  },
+  // ─── Logística ────────────────────────────────────────────────────────────
+  {
+    id: 's10', fornecedor: 'FastLog Brasil', cnpj: '66.777.888/0001-99',
+    categoria: 'Logística', subcategoria: 'Transporte Rodoviário', spend: 4200000,
+    nota_geral: 71, nota_financeira: 68, nota_inteligencia: 75, nota_risco: 70,
+    fin_situacao: 65, fin_maturidade: 70, fin_exposicao: 69,
+    int_kraljic: 75, int_pedidos: 76, int_ticket: 74, status_risco: 'Médio',
+    evidencia_titulo: 'FastLog inicia negociações sindicais com categoria dos motoristas',
+    link_noticia: 'https://transportes.com.br',
+    analise_ia_detalhada: 'Maior fornecedor em spend com score limítrofe. Risco trabalhista emergente pode impactar operação em até 30 dias. Recomenda-se ativar plano de contingência com transportadora secundária qualificada.',
+  },
+  {
+    id: 's11', fornecedor: 'AirCargo Express', cnpj: '44.555.666/0001-11',
+    categoria: 'Logística', subcategoria: 'Frete Aéreo', spend: 620000,
+    nota_geral: 35, nota_financeira: 30, nota_inteligencia: 42, nota_risco: 33,
+    fin_situacao: 28, fin_maturidade: 32, fin_exposicao: 30,
+    int_kraljic: 45, int_pedidos: 40, int_ticket: 41, status_risco: 'Alto',
+    evidencia_titulo: 'AirCargo Express protocola pedido de recuperação judicial',
+    link_noticia: 'https://jornaldocomercio.com.br',
+    analise_ia_detalhada: 'RISCO CRÍTICO. Processo de recuperação judicial em andamento. Suspender novos pedidos imediatamente. Migrar todas as cargas para operadores alternativos aprovados. Acionar jurídico para proteção de créditos existentes.',
+  },
+  {
+    id: 's12', fornecedor: 'OmniLog Soluções', cnpj: '99.000.111/0001-22',
+    categoria: 'Logística', subcategoria: 'Armazenagem', spend: 980000,
+    nota_geral: 77, nota_financeira: 74, nota_inteligencia: 80, nota_risco: 77,
+    fin_situacao: 72, fin_maturidade: 76, fin_exposicao: 74,
+    int_kraljic: 79, int_pedidos: 81, int_ticket: 80, status_risco: 'Baixo',
+    evidencia_titulo: 'OmniLog inaugura CD de 20.000m² no hub de Extrema-MG',
+    link_noticia: 'https://logweb.com.br',
+    analise_ia_detalhada: 'Perfil estável com expansão de capacidade. SLA de armazenagem com 99.2% de acuracidade de inventário. Contrato pode ser renovado sem ressalvas. Avaliar inclusão de serviços de cross-docking na renovação.',
+  },
+  // ─── Serviços ─────────────────────────────────────────────────────────────
+  {
+    id: 's13', fornecedor: 'CleanService Corp', cnpj: '13.246.800/0001-33',
+    categoria: 'Serviços', subcategoria: 'Facilities', spend: 290000,
+    nota_geral: 68, nota_financeira: 65, nota_inteligencia: 72, nota_risco: 67,
+    fin_situacao: 62, fin_maturidade: 67, fin_exposicao: 66,
+    int_kraljic: 70, int_pedidos: 74, int_ticket: 72, status_risco: 'Médio',
+    evidencia_titulo: 'Setor de facilities sofre pressão de custos com alta do salário mínimo',
+    link_noticia: 'https://folha.uol.com.br',
+    analise_ia_detalhada: 'Score médio estável. Pressão de custos setorial pode demandar reajuste contratual acima do IPCA. Recomenda-se benchmark de mercado antes da renovação prevista para Q3.',
+  },
+  {
+    id: 's14', fornecedor: 'SegPro Segurança', cnpj: '57.900.234/0001-44',
+    categoria: 'Serviços', subcategoria: 'Segurança Patrimonial', spend: 180000,
+    nota_geral: 91, nota_financeira: 89, nota_inteligencia: 93, nota_risco: 91,
+    fin_situacao: 87, fin_maturidade: 91, fin_exposicao: 89,
+    int_kraljic: 94, int_pedidos: 93, int_ticket: 92, status_risco: 'Baixo',
+    evidencia_titulo: 'SegPro é reconhecida como Top Employer 2025 no setor de segurança',
+    link_noticia: 'https://exame.com',
+    analise_ia_detalhada: 'Excelente score geral. Gestão de capital humano de qualidade reduz risco de rotatividade. Fornecedor modelo para benchmarking interno. Considerar expansão para outras unidades.',
+  },
+  {
+    id: 's15', fornecedor: 'ConsultEdge Advisory', cnpj: '71.234.567/0001-55',
+    categoria: 'Serviços', subcategoria: 'Consultoria', spend: 560000,
+    nota_geral: 47, nota_financeira: 44, nota_inteligencia: 52, nota_risco: 45,
+    fin_situacao: 40, fin_maturidade: 46, fin_exposicao: 46,
+    int_kraljic: 55, int_pedidos: 50, int_ticket: 51, status_risco: 'Alto',
+    evidencia_titulo: 'ConsultEdge perde 3 sócios sênior para concorrente em movimento estratégico',
+    link_noticia: 'https://valor.com.br',
+    analise_ia_detalhada: 'Deterioração significativa de capital humano. Saída de sócios-chave impacta qualidade e continuidade dos projetos. Recomenda-se revisão contratual urgente com cláusula de retenção de equipe alocada.',
+  },
+]
+
+const useRiskStore = create(
+  persist(
+    (set) => ({
+      suppliers: SEED_SUPPLIERS,
+      hasCustomData: false,
+
+      importSuppliers: (data) => set({ suppliers: data, hasCustomData: true }),
+      resetToSeed: () => set({ suppliers: SEED_SUPPLIERS, hasCustomData: false }),
+    }),
+    {
+      name: 'risk-store-v1',
+      partialize: s => ({ suppliers: s.suppliers, hasCustomData: s.hasCustomData }),
+    }
+  )
+)
+
+export default useRiskStore
