@@ -11,7 +11,7 @@ export const SEED_SUPPLIERS = [
     fin_situacao: 75, fin_maturidade: 80, fin_exposicao: 79,
     int_kraljic: 85, int_pedidos: 92, int_ticket: 87, status_risco: 'Baixo',
     evidencia_titulo: 'PackBrasil expande capacidade produtiva em MG',
-    link_noticia: 'https://exame.com',
+    link_noticia: 'https://exame.com/negocios/packbrasil-expande-capacidade-produtiva-em-mg/',
     analise_ia_detalhada: 'Sólida saúde financeira com histórico consistente de entregas on-time (94%). Exposição cambial moderada em insumos importados. Recomenda-se manter contrato atual com revisão anual de preços.',
   },
   {
@@ -22,7 +22,7 @@ export const SEED_SUPPLIERS = [
     fin_situacao: 50, fin_maturidade: 58, fin_exposicao: 57,
     int_kraljic: 72, int_pedidos: 68, int_ticket: 70, status_risco: 'Médio',
     evidencia_titulo: 'FlexPack reporta queda de 15% no faturamento no 2T25',
-    link_noticia: 'https://valor.com.br',
+    link_noticia: 'https://valor.globo.com/empresas/noticia/2025/07/flexpack-reporta-queda-de-15pct-no-faturamento-no-2t25.ghtml',
     analise_ia_detalhada: 'Sinais de deterioração financeira nos últimos 2 trimestres. Índice de liquidez corrente abaixo de 1.2. Recomenda-se monitoramento mensal e início de processo de qualificação de fornecedor alternativo.',
   },
   {
@@ -33,7 +33,7 @@ export const SEED_SUPPLIERS = [
     fin_situacao: 90, fin_maturidade: 94, fin_exposicao: 92,
     int_kraljic: 88, int_pedidos: 86, int_ticket: 87, status_risco: 'Baixo',
     evidencia_titulo: 'EcoBox conquista certificação FSC e expande para mercado europeu',
-    link_noticia: 'https://folha.uol.com.br',
+    link_noticia: 'https://www1.folha.uol.com.br/mercado/2025/06/ecobox-conquista-certificacao-fsc-e-expande-para-mercado-europeu.shtml',
     analise_ia_detalhada: 'Excelente perfil de risco com certificações internacionais. Alta diversificação de clientes reduz dependência. Candidato prioritário a contrato de longo prazo com cláusula de preço favorecido.',
   },
   // ─── TI ───────────────────────────────────────────────────────────────────
@@ -45,7 +45,7 @@ export const SEED_SUPPLIERS = [
     fin_situacao: 68, fin_maturidade: 72, fin_exposicao: 70,
     int_kraljic: 78, int_pedidos: 82, int_ticket: 80, status_risco: 'Médio',
     evidencia_titulo: 'TechSupply anuncia reestruturação societária com novo sócio-investidor',
-    link_noticia: 'https://computerworld.com.br',
+    link_noticia: 'https://computerworld.com.br/negocios/techsupply-anuncia-reestruturacao-societaria-com-novo-socio-investidor/',
     analise_ia_detalhada: 'Fornecedor de alto spend com score limítrofe. Reestruturação societária gera incerteza sobre continuidade de contratos. Recomenda-se due diligence reforçada e inclusão de cláusula de continuidade no próximo contrato.',
   },
   {
@@ -56,7 +56,7 @@ export const SEED_SUPPLIERS = [
     fin_situacao: 85, fin_maturidade: 88, fin_exposicao: 85,
     int_kraljic: 93, int_pedidos: 90, int_ticket: 90, status_risco: 'Baixo',
     evidencia_titulo: 'CloudMaster recebe aporte de R$ 80M em rodada Série B',
-    link_noticia: 'https://startups.com.br',
+    link_noticia: 'https://startups.com.br/financiamento/cloudmaster-recebe-aporte-de-r-80m-em-rodada-serie-b/',
     analise_ia_detalhada: 'Fornecedor crítico de maior spend com excelente score. SLA cumprido em 98.5% dos meses. Parceria estratégica recomendada. Explorar expansão de escopo e contrato plurianual com desconto volumétrico.',
   },
   {
@@ -67,7 +67,7 @@ export const SEED_SUPPLIERS = [
     fin_situacao: 38, fin_maturidade: 42, fin_exposicao: 40,
     int_kraljic: 55, int_pedidos: 50, int_ticket: 51, status_risco: 'Alto',
     evidencia_titulo: 'DevOps Solutions tem pendência fiscal ativa na Receita Federal',
-    link_noticia: 'https://cnpj.info',
+    link_noticia: 'https://www.cnpj.info/11.222.333/0001-44/devops-solutions/dividas-fiscais/',
     analise_ia_detalhada: 'Perfil de alto risco. Pendências fiscais ativas com dívida estimada em R$ 2.1M. Histórico de atrasos (OTIF 71%). Recomenda-se suspender novos pedidos e iniciar processo de substituição imediata.',
   },
   // ─── Matéria-Prima ────────────────────────────────────────────────────────
@@ -79,7 +79,7 @@ export const SEED_SUPPLIERS = [
     fin_situacao: 72, fin_maturidade: 77, fin_exposicao: 76,
     int_kraljic: 82, int_pedidos: 84, int_ticket: 83, status_risco: 'Baixo',
     evidencia_titulo: 'RawMat fecha acordo de fornecimento com grupo europeu de químicos',
-    link_noticia: 'https://quimica.com.br',
+    link_noticia: 'https://www.quimica.com.br/rawmat-fecha-acordo-de-fornecimento-com-grupo-europeu-de-quimicos/',
     analise_ia_detalhada: 'Fornecedor robusto em insumos críticos. Alta dependência de um único hub logístico representa risco operacional moderado. Recomenda-se contrato de estoque de segurança equivalente a 45 dias de consumo.',
   },
   {
@@ -90,7 +90,7 @@ export const SEED_SUPPLIERS = [
     fin_situacao: 50, fin_maturidade: 54, fin_exposicao: 52,
     int_kraljic: 63, int_pedidos: 60, int_ticket: 60, status_risco: 'Médio',
     evidencia_titulo: 'Seca severa afeta produção da AgroInsumos no 2T25',
-    link_noticia: 'https://agrolink.com.br',
+    link_noticia: 'https://www.agrolink.com.br/noticias/seca-severa-afeta-producao-da-agroinsumos-no-2t25_496821.html',
     analise_ia_detalhada: 'Score médio com tendência de deterioração por evento climático. Exposição sazonal elevada a condições meteorológicas. Recomenda-se hedge de preço e diversificação de fornecimento para produtos de maior criticidade.',
   },
   {
@@ -101,7 +101,7 @@ export const SEED_SUPPLIERS = [
     fin_situacao: 78, fin_maturidade: 82, fin_exposicao: 80,
     int_kraljic: 87, int_pedidos: 89, int_ticket: 88, status_risco: 'Baixo',
     evidencia_titulo: 'MetalBase investe R$ 45M em nova linha de produção de ligas especiais',
-    link_noticia: 'https://metalurgia.com.br',
+    link_noticia: 'https://www.metalurgia.com.br/noticias/metalbase-investe-r-45m-em-nova-linha-de-producao-de-ligas-especiais/',
     analise_ia_detalhada: 'Fornecedor estratégico com excelente histórico. Investimento em capacidade produtiva demonstra solvência. Score de inteligência elevado reflete alta previsibilidade de pedidos e ticket médio estável.',
   },
   // ─── Logística ────────────────────────────────────────────────────────────
@@ -113,7 +113,7 @@ export const SEED_SUPPLIERS = [
     fin_situacao: 65, fin_maturidade: 70, fin_exposicao: 69,
     int_kraljic: 75, int_pedidos: 76, int_ticket: 74, status_risco: 'Médio',
     evidencia_titulo: 'FastLog inicia negociações sindicais com categoria dos motoristas',
-    link_noticia: 'https://transportes.com.br',
+    link_noticia: 'https://www.transportes.com.br/noticias/fastlog-inicia-negociacoes-sindicais-com-categoria-dos-motoristas/',
     analise_ia_detalhada: 'Maior fornecedor em spend com score limítrofe. Risco trabalhista emergente pode impactar operação em até 30 dias. Recomenda-se ativar plano de contingência com transportadora secundária qualificada.',
   },
   {
@@ -124,7 +124,7 @@ export const SEED_SUPPLIERS = [
     fin_situacao: 28, fin_maturidade: 32, fin_exposicao: 30,
     int_kraljic: 45, int_pedidos: 40, int_ticket: 41, status_risco: 'Alto',
     evidencia_titulo: 'AirCargo Express protocola pedido de recuperação judicial',
-    link_noticia: 'https://jornaldocomercio.com.br',
+    link_noticia: 'https://www.jornaldocomercio.com.br/economia/2025/08/aircargo-express-protocola-pedido-de-recuperacao-judicial.html',
     analise_ia_detalhada: 'RISCO CRÍTICO. Processo de recuperação judicial em andamento. Suspender novos pedidos imediatamente. Migrar todas as cargas para operadores alternativos aprovados. Acionar jurídico para proteção de créditos existentes.',
   },
   {
@@ -135,7 +135,7 @@ export const SEED_SUPPLIERS = [
     fin_situacao: 72, fin_maturidade: 76, fin_exposicao: 74,
     int_kraljic: 79, int_pedidos: 81, int_ticket: 80, status_risco: 'Baixo',
     evidencia_titulo: 'OmniLog inaugura CD de 20.000m² no hub de Extrema-MG',
-    link_noticia: 'https://logweb.com.br',
+    link_noticia: 'https://www.logweb.com.br/omnilog-inaugura-cd-de-20000m2-no-hub-de-extrema-mg/',
     analise_ia_detalhada: 'Perfil estável com expansão de capacidade. SLA de armazenagem com 99.2% de acuracidade de inventário. Contrato pode ser renovado sem ressalvas. Avaliar inclusão de serviços de cross-docking na renovação.',
   },
   // ─── Serviços ─────────────────────────────────────────────────────────────
@@ -147,7 +147,7 @@ export const SEED_SUPPLIERS = [
     fin_situacao: 62, fin_maturidade: 67, fin_exposicao: 66,
     int_kraljic: 70, int_pedidos: 74, int_ticket: 72, status_risco: 'Médio',
     evidencia_titulo: 'Setor de facilities sofre pressão de custos com alta do salário mínimo',
-    link_noticia: 'https://folha.uol.com.br',
+    link_noticia: 'https://www1.folha.uol.com.br/mercado/2025/05/setor-de-facilities-sofre-pressao-de-custos-com-alta-do-salario-minimo.shtml',
     analise_ia_detalhada: 'Score médio estável. Pressão de custos setorial pode demandar reajuste contratual acima do IPCA. Recomenda-se benchmark de mercado antes da renovação prevista para Q3.',
   },
   {
@@ -158,7 +158,7 @@ export const SEED_SUPPLIERS = [
     fin_situacao: 87, fin_maturidade: 91, fin_exposicao: 89,
     int_kraljic: 94, int_pedidos: 93, int_ticket: 92, status_risco: 'Baixo',
     evidencia_titulo: 'SegPro é reconhecida como Top Employer 2025 no setor de segurança',
-    link_noticia: 'https://exame.com',
+    link_noticia: 'https://exame.com/carreira/segpro-e-reconhecida-como-top-employer-2025-no-setor-de-seguranca/',
     analise_ia_detalhada: 'Excelente score geral. Gestão de capital humano de qualidade reduz risco de rotatividade. Fornecedor modelo para benchmarking interno. Considerar expansão para outras unidades.',
   },
   {
@@ -169,7 +169,7 @@ export const SEED_SUPPLIERS = [
     fin_situacao: 40, fin_maturidade: 46, fin_exposicao: 46,
     int_kraljic: 55, int_pedidos: 50, int_ticket: 51, status_risco: 'Alto',
     evidencia_titulo: 'ConsultEdge perde 3 sócios sênior para concorrente em movimento estratégico',
-    link_noticia: 'https://valor.com.br',
+    link_noticia: 'https://valor.globo.com/empresas/noticia/2025/04/consultedge-perde-3-socios-senior-para-concorrente-em-movimento-estrategico.ghtml',
     analise_ia_detalhada: 'Deterioração significativa de capital humano. Saída de sócios-chave impacta qualidade e continuidade dos projetos. Recomenda-se revisão contratual urgente com cláusula de retenção de equipe alocada.',
   },
 ]
