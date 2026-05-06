@@ -10,6 +10,7 @@ const SCHEMA_COLS = [
   { col: 'categoria',           req: true,  desc: 'Categoria de compras' },
   { col: 'subcategoria',        req: false, desc: 'Subcategoria' },
   { col: 'spend',               req: false, desc: 'Spend em R$ (aceita "R$ 1.234,56" ou número)' },
+  { col: 'qtd_pedidos',         req: false, desc: 'Quantidade de pedidos (número inteiro)' },
   { col: 'nota_geral',          req: false, desc: 'Nota 0–100 (vazio = 100)' },
   { col: 'nota_financeira',     req: false, desc: 'Nota financeira 0–100' },
   { col: 'nota_inteligencia',   req: false, desc: 'Nota inteligência 0–100' },
