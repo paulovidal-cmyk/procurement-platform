@@ -184,7 +184,7 @@ const useRiskStore = create(
       resetToSeed: () => set({ suppliers: SEED_SUPPLIERS, hasCustomData: false }),
     }),
     {
-      name: 'risk-store-v1',
+      name: 'risk-store-v2',
       partialize: s => ({ suppliers: s.suppliers, hasCustomData: s.hasCustomData }),
     }
   )

@@ -376,9 +376,9 @@ export function RiskDashboard() {
                     </td>
 
                     {/* Categoria */}
-                    <td className="px-3 py-1.5">
-                      <p className="text-gray-700 leading-snug">{sup.categoria}</p>
-                      <p className="text-[9px] text-gray-400">{sup.subcategoria}</p>
+                    <td className="px-3 py-1.5 whitespace-nowrap">
+                      <p className="text-gray-700 leading-snug font-medium">{sup.categoria || '—'}</p>
+                      <p className="text-[9px] text-gray-400">{sup.subcategoria || ''}</p>
                     </td>
 
                     {/* Spend */}
@@ -408,17 +408,27 @@ export function RiskDashboard() {
                     </td>
 
                     {/* Evidência */}
-                    <td className="px-3 py-1.5 max-w-[220px]">
-                      {sup.link_noticia && sup.evidencia_titulo ? (
-                        <a
-                          href={sup.link_noticia}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={e => e.stopPropagation()}
-                          className="text-blue-600 hover:underline text-[10px] truncate block leading-snug"
-                        >
-                          {sup.evidencia_titulo}
-                        </a>
+                    <td className="px-3 py-1.5">
+                      {sup.evidencia_titulo ? (
+                        <div className="flex items-center gap-1.5" style={{ maxWidth: 220 }}>
+                          <p className="text-[10px] text-gray-600 leading-snug flex-1 min-w-0"
+                            style={{ overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                            {sup.evidencia_titulo}
+                          </p>
+                          {sup.link_noticia && (
+                            <a
+                              href={sup.link_noticia}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={e => e.stopPropagation()}
+                              title="Ver notícia"
+                              className="flex-shrink-0 w-5 h-5 rounded flex items-center justify-center transition-all hover:bg-blue-100"
+                              style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)' }}
+                            >
+                              <ExternalLink size={10} style={{ color: '#3b82f6' }} />
+                            </a>
+                          )}
+                        </div>
                       ) : (
                         <span className="text-gray-300 text-[10px]">—</span>
                       )}
