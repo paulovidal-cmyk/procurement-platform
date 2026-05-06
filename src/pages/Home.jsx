@@ -1,147 +1,139 @@
-import { ShoppingCart, BarChart2, Gavel, ScanLine, ShieldCheck, ArrowRight, TrendingDown, CheckCircle, Clock } from 'lucide-react'
+import {
+  ShoppingCart, BarChart2, ScanLine, ShieldCheck, ArrowUpRight,
+  TrendingDown, CheckCircle2, Clock, Sparkles,
+} from 'lucide-react'
+import { LineChart, Line, ResponsiveContainer } from 'recharts'
 import useAppStore from '../store/useAppStore.js'
-import { ROLES } from '../constants/roles.js'
+import { PageHeader } from '../components/layout/PageHeader.jsx'
 
 const MODULES = [
   {
-    id: 'kanban',
-    icon: ShoppingCart,
-    label: 'Kanban de Compras',
-    desc: 'Gerencie processos de compra com fluxo de aprovação estruturado e tracking de saving em tempo real.',
-    color: '#10CB9A',
-    bg: 'rgba(16,203,154,0.08)',
-    border: 'rgba(16,203,154,0.25)',
+    id: 'kanban', icon: ShoppingCart, label: 'Kanban de Compras',
+    desc: 'Fluxo de aprovação estruturado e tracking de saving em tempo real.',
   },
   {
-    id: 'analytics',
-    icon: BarChart2,
-    label: 'Analytics',
-    desc: 'Dashboards executivos com análise de categorias, matriz de Kraljic e KPIs de procurement.',
-    color: '#60A5FA',
-    bg: 'rgba(96,165,250,0.08)',
-    border: 'rgba(96,165,250,0.25)',
+    id: 'analytics', icon: BarChart2, label: 'Analytics',
+    desc: 'Dashboards executivos, matriz de Kraljic e KPIs de procurement.',
   },
   {
-    id: 'raiox',
-    icon: ScanLine,
-    label: 'Raio-X de Preços',
-    desc: 'Monte cost breakdowns com indicadores econômicos e compare o should cost do fornecedor.',
-    color: '#A78BFA',
-    bg: 'rgba(167,139,250,0.08)',
-    border: 'rgba(167,139,250,0.25)',
+    id: 'raiox', icon: ScanLine, label: 'Raio-X de Preços',
+    desc: 'Cost breakdowns com indicadores econômicos e should cost.',
   },
   {
-    id: 'leilao',
-    icon: Gavel,
-    label: 'Leilão Eletrônico',
-    desc: 'Plataforma de leilão reverso para maximizar saving em compras competitivas.',
-    color: '#F59E0B',
-    bg: 'rgba(245,158,11,0.08)',
-    border: 'rgba(245,158,11,0.25)',
-    badge: 'Em breve',
-  },
-  {
-    id: 'riskshield',
-    icon: ShieldCheck,
-    label: 'Supplier Risk Shield',
-    desc: 'Visualização analítica do risco da base de fornecedores com radar de performance e alertas de evidência.',
-    color: '#10CB9A',
-    bg: 'rgba(16,203,154,0.08)',
-    border: 'rgba(16,203,154,0.25)',
+    id: 'riskshield', icon: ShieldCheck, label: 'Supplier Risk Shield',
+    desc: 'Análise de risco da base de fornecedores com radar de performance.',
   },
 ]
 
-const STATS = [
-  { icon: TrendingDown, label: 'Saving YTD',    value: 'R$ 176k', sub: '+23% vs meta' },
-  { icon: CheckCircle,  label: 'Processos',      value: '7',       sub: 'em andamento' },
-  { icon: Clock,        label: 'Lead Time Médio', value: '4.2d',   sub: 'aprovação' },
+const SAVING_SERIES = [
+  { v: 102 }, { v: 118 }, { v: 110 }, { v: 134 }, { v: 142 },
+  { v: 138 }, { v: 156 }, { v: 161 }, { v: 158 }, { v: 168 }, { v: 172 }, { v: 176 },
+]
+
+const HIGHLIGHTS = [
+  { icon: CheckCircle2, label: 'Processos ativos', value: '7',     sub: 'em andamento' },
+  { icon: Clock,        label: 'Lead time médio',  value: '4.2d',  sub: 'até aprovação' },
+  { icon: TrendingDown, label: 'Spend YTD',        value: 'R$ 12.4M', sub: '+8% vs 2024' },
 ]
 
 export function Home() {
   const navigate    = useAppStore(s => s.navigate)
   const currentUser = useAppStore(s => s.currentUser)
-  const role        = ROLES[currentUser?.role]
+  const firstName   = currentUser?.name?.split(' ')[0]
 
   return (
-    <div className="h-full overflow-y-auto" style={{ background: '#e9f3f0' }}>
-      <div className="max-w-5xl mx-auto px-8 py-12 space-y-12">
+    <div className="flex flex-col h-full bg-white">
+      <PageHeader title="Home" />
 
-        {/* Hero */}
-        <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold"
-            style={{ background: 'rgba(13,49,37,0.08)', color: '#0D3125', border: '1px solid rgba(13,49,37,0.15)' }}>
-            Hub de Compras · Stone
-          </div>
-          <h1 className="text-4xl font-black leading-tight" style={{ color: '#0D3125' }}>
-            Olá, {currentUser?.name?.split(' ')[0]}.<br />
-            <span style={{ color: '#10CB9A' }}>O que vamos fazer hoje?</span>
-          </h1>
-          <p className="text-lg max-w-xl" style={{ color: '#4a7a68' }}>
-            Plataforma integrada de procurement — da negociação à aprovação, com dados e governança em tempo real.
-          </p>
-        </div>
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-6xl mx-auto px-6 py-6 space-y-6">
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-4">
-          {STATS.map(s => {
-            const Icon = s.icon
-            return (
-              <div key={s.label} className="rounded-2xl p-5 bg-white shadow-sm"
-                style={{ border: '1px solid rgba(13,49,37,0.08)' }}>
-                <Icon size={18} className="mb-3" style={{ color: '#10CB9A' }} />
-                <p className="text-2xl font-black" style={{ color: '#0D3125' }}>{s.value}</p>
-                <p className="text-sm font-medium mt-0.5" style={{ color: '#0D3125' }}>{s.label}</p>
-                <p className="text-xs mt-0.5" style={{ color: '#4a7a68' }}>{s.sub}</p>
+          {/* Hero card — saving big number + sparkline */}
+          <div className="rounded-2xl border border-line bg-white p-6">
+            <div className="flex items-start justify-between gap-6">
+              <div>
+                <p className="text-xs font-medium text-muted">Saving YTD</p>
+                <p className="text-[42px] font-extrabold text-ink leading-none mt-1 tracking-tight">R$ 176k</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold"
+                    style={{ background: 'rgba(16,185,129,0.10)', color: '#0e9971' }}>
+                    <ArrowUpRight size={11} strokeWidth={2.5} />+23%
+                  </span>
+                  <span className="text-[11px] text-subtle">vs meta YTD</span>
+                </div>
               </div>
-            )
-          })}
-        </div>
+              <div className="hidden sm:block w-48 h-14">
+                <ResponsiveContainer>
+                  <LineChart data={SAVING_SERIES} margin={{ top: 4, right: 0, bottom: 4, left: 0 }}>
+                    <Line type="monotone" dataKey="v" stroke="#10CB9A" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
 
-        {/* Modules */}
-        <div>
-          <p className="text-sm font-semibold mb-4 uppercase tracking-widest"
-            style={{ color: 'rgba(13,49,37,0.4)' }}>Módulos</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {MODULES.map(mod => {
-              const Icon = mod.icon
-              const isLocked = mod.id === 'leilao'
-              return (
-                <button
-                  key={mod.id}
-                  onClick={() => !isLocked && navigate(mod.id)}
-                  disabled={isLocked}
-                  className="text-left rounded-2xl p-6 transition-all group"
-                  style={{ background: mod.bg, border: `1px solid ${mod.border}`,
-                    cursor: isLocked ? 'default' : 'pointer' }}
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                      style={{ background: 'rgba(0,0,0,0.2)' }}>
-                      <Icon size={20} style={{ color: mod.color }} />
+            <div className="grid grid-cols-3 gap-4 mt-6 pt-5 border-t border-line">
+              {HIGHLIGHTS.map(h => {
+                const Icon = h.icon
+                return (
+                  <div key={h.label} className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-brand-tint flex items-center justify-center flex-shrink-0">
+                      <Icon size={14} className="text-brand" />
                     </div>
-                    {mod.badge ? (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                        style={{ background: 'rgba(245,158,11,0.15)', color: '#F59E0B', border: '1px solid rgba(245,158,11,0.3)' }}>
-                        {mod.badge}
-                      </span>
-                    ) : (
-                      <ArrowRight size={16} className="opacity-0 group-hover:opacity-100 transition-opacity"
-                        style={{ color: mod.color }} />
-                    )}
+                    <div className="min-w-0">
+                      <p className="text-[11px] text-subtle truncate">{h.label}</p>
+                      <p className="text-base font-bold text-ink leading-tight mt-0.5">{h.value}</p>
+                      <p className="text-[10px] text-subtle mt-0.5 truncate">{h.sub}</p>
+                    </div>
                   </div>
-                  <p className="font-bold text-sm mb-2" style={{ color: '#0D3125' }}>{mod.label}</p>
-                  <p className="text-xs leading-relaxed" style={{ color: '#4a7a68' }}>{mod.desc}</p>
-                </button>
-              )
-            })}
+                )
+              })}
+            </div>
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className="pt-4 border-t" style={{ borderColor: 'rgba(13,49,37,0.1)' }}>
-          <p className="text-xs text-center" style={{ color: 'rgba(13,49,37,0.3)' }}>
-            Stone Procurement Platform · {currentUser?.email}
-          </p>
+          {/* Welcome strip */}
+          <div className="flex items-center gap-3 px-1">
+            <div className="w-8 h-8 rounded-full bg-brand-tint flex items-center justify-center flex-shrink-0">
+              <Sparkles size={14} className="text-brand" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-ink">Olá, {firstName}.</p>
+              <p className="text-[11px] text-muted">O que vamos fazer hoje?</p>
+            </div>
+          </div>
+
+          {/* Modules */}
+          <div>
+            <div className="flex items-center justify-between mb-3 px-1">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-subtle">Módulos</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {MODULES.map(mod => {
+                const Icon = mod.icon
+                return (
+                  <button
+                    key={mod.id}
+                    onClick={() => navigate(mod.id)}
+                    className="group text-left rounded-2xl border border-line bg-white p-5 transition-all hover:border-line-strong hover:shadow-card"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="w-9 h-9 rounded-xl bg-brand-tint flex items-center justify-center">
+                        <Icon size={16} className="text-brand" />
+                      </div>
+                      <ArrowUpRight size={14} className="text-subtle opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <p className="font-semibold text-sm text-ink">{mod.label}</p>
+                    <p className="text-xs text-muted leading-relaxed mt-1">{mod.desc}</p>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="pt-2 pb-2">
+            <p className="text-[10px] text-subtle text-center">
+              Stone Procurement Platform · {currentUser?.email}
+            </p>
+          </div>
         </div>
       </div>
     </div>

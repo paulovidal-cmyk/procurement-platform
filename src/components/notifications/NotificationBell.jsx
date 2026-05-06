@@ -40,11 +40,11 @@ export function NotificationBell() {
     <div className="relative">
       <button
         onClick={() => isOpen ? closeNotif() : openNotif()}
-        className="relative p-2 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+        className="relative w-9 h-9 rounded-full flex items-center justify-center text-muted hover:text-ink hover:bg-gray-50 transition-colors"
       >
-        <Bell size={20} />
+        <Bell size={16} />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-xs font-bold text-white flex items-center justify-center"
+          <span className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full text-[9px] font-bold text-white flex items-center justify-center ring-2 ring-white"
             style={{ backgroundColor: '#EF4444' }}>
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
