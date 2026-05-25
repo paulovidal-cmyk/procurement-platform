@@ -21,8 +21,8 @@ function StoneLogo({ onClick }) {
     <button onClick={onClick} className="flex items-center flex-shrink-0 focus:outline-none">
       {!imgError ? (
         <img
-          src="/logo.png.png"
-          alt="Stone"
+          src="/logo.svg"
+          alt="StoneCo"
           onError={() => setImgError(true)}
           className="h-7 w-auto object-contain"
         />
