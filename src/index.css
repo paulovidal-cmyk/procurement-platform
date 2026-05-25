@@ -52,6 +52,6 @@ html, body {
 
 .kanban-card.dragging   { opacity: 0.5; transform: rotate(2deg); }
 .kanban-column.drop-target {
-  background-color: rgba(16,203,154,0.06);
-  border-color: rgba(16,203,154,0.4);
+  background-color: rgba(0,210,106,0.06);
+  border-color: rgba(0,210,106,0.4);
 }

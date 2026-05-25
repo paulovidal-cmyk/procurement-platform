@@ -61,7 +61,7 @@ export function Home() {
               <div className="hidden sm:block w-48 h-14">
                 <ResponsiveContainer>
                   <LineChart data={SAVING_SERIES} margin={{ top: 4, right: 0, bottom: 4, left: 0 }}>
-                    <Line type="monotone" dataKey="v" stroke="#10CB9A" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="v" stroke="#00D26A" strokeWidth={2} dot={false} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -127,7 +127,7 @@ export function Home() {
 
           <div className="pt-2 pb-2">
             <p className="text-[10px] text-subtle text-center">
-              Stone Procurement Platform · {currentUser?.email}
+              Stone Plataforma de Compras · {currentUser?.email}
             </p>
           </div>
       </div>

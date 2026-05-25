@@ -136,7 +136,7 @@ function doGet(e){
           <button
             onClick={handleCopy}
             className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-lg transition-all"
-            style={{ background: copied ? 'rgba(16,203,154,0.2)' : 'rgba(255,255,255,0.08)', color: copied ? '#10CB9A' : '#9ca3af' }}
+            style={{ background: copied ? 'rgba(0,210,106,0.2)' : 'rgba(255,255,255,0.08)', color: copied ? '#00D26A' : '#9ca3af' }}
           >
             {copied ? <Check size={12} /> : <Copy size={12} />}
             {copied ? 'Copiado!' : 'Copiar'}

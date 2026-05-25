@@ -194,7 +194,7 @@ function Drawer({ pkg, indicadoresData, onClose, onEdit }) {
             <button
               onClick={() => onEdit(pkg)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
-              style={{ background: 'rgba(16,203,154,0.12)', color: '#0D9488' }}
+              style={{ background: 'rgba(0,210,106,0.12)', color: '#0D9488' }}
             >
               <Edit2 size={12} /> Editar
             </button>
@@ -263,7 +263,7 @@ function Drawer({ pkg, indicadoresData, onClose, onEdit }) {
                         <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
                           style={{
                             background: l.tipoVariacao === 'ponta_a_ponta'
-                              ? 'rgba(16,203,154,0.1)' : 'rgba(96,165,250,0.1)',
+                              ? 'rgba(0,210,106,0.1)' : 'rgba(96,165,250,0.1)',
                             color: l.tipoVariacao === 'ponta_a_ponta' ? '#0D9488' : '#3B82F6',
                           }}>
                           {l.tipoVariacao === 'ponta_a_ponta' ? 'PaP' : 'MM12'}
@@ -388,11 +388,11 @@ export function GestaoCostBreakdowns({ onNew, onEdit }) {
               {pacotes.length} pacote{pacotes.length !== 1 ? 's' : ''} · Clique em Detalhes para ver o breakdown completo
             </p>
           </div>
-          <button
-            onClick={onNew}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
-            style={{ backgroundColor: '#0D3125' }}
-          >
+            <button
+              onClick={onNew}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
+              style={{ backgroundColor: '#0D3125' }}
+            >
             <Plus size={14} />
             Novo Pacote
           </button>
@@ -414,7 +414,7 @@ export function GestaoCostBreakdowns({ onNew, onEdit }) {
             <button
               onClick={onNew}
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white"
-              style={{ backgroundColor: '#10CB9A' }}
+              style={{ backgroundColor: '#00D26A' }}
             >
               <Plus size={14} /> Criar Primeiro Pacote
             </button>

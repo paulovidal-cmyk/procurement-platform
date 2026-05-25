@@ -126,13 +126,13 @@ export function RiskUpload({ onDone }) {
           onClick={() => inputRef.current?.click()}
           className="rounded-xl border-2 border-dashed cursor-pointer transition-all flex flex-col items-center justify-center py-10 gap-3"
           style={{
-            borderColor: isDrag ? '#10CB9A' : 'rgba(13,49,37,0.15)',
-            background: isDrag ? 'rgba(16,203,154,0.05)' : 'white',
+            borderColor: isDrag ? '#00D26A' : 'rgba(13,49,37,0.15)',
+            background: isDrag ? 'rgba(0,210,106,0.05)' : 'white',
           }}
         >
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center"
-            style={{ background: isDrag ? 'rgba(16,203,154,0.12)' : 'rgba(13,49,37,0.06)' }}>
-            <Upload size={22} style={{ color: isDrag ? '#10CB9A' : 'rgba(13,49,37,0.3)' }} />
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center"
+            style={{ background: isDrag ? 'rgba(0,210,106,0.12)' : 'rgba(13,49,37,0.06)' }}>
+            <Upload size={22} style={{ color: isDrag ? '#00D26A' : 'rgba(13,49,37,0.3)' }} />
           </div>
           <div className="text-center">
             <p className="text-sm font-semibold" style={{ color: '#0D3125' }}>
@@ -156,8 +156,8 @@ export function RiskUpload({ onDone }) {
           style={{ borderColor: 'rgba(13,49,37,0.08)' }}>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: 'rgba(16,203,154,0.1)' }}>
-              <FileText size={15} style={{ color: '#10CB9A' }} />
+              style={{ background: 'rgba(0,210,106,0.1)' }}>
+              <FileText size={15} style={{ color: '#00D26A' }} />
             </div>
             <div>
               <p className="text-xs font-semibold" style={{ color: '#0D3125' }}>
@@ -182,9 +182,9 @@ export function RiskUpload({ onDone }) {
         {/* Schema reference */}
         <div className="bg-white rounded-xl border overflow-hidden"
           style={{ borderColor: 'rgba(13,49,37,0.08)' }}>
-          <div className="flex items-center gap-2 px-4 py-2.5 border-b"
+            <div className="flex items-center gap-2 px-4 py-2.5 border-b"
             style={{ borderColor: 'rgba(13,49,37,0.06)' }}>
-            <Table size={13} style={{ color: '#10CB9A' }} />
+            <Table size={13} style={{ color: '#00D26A' }} />
             <p className="text-xs font-semibold" style={{ color: '#0D3125' }}>
               Estrutura esperada das colunas
             </p>

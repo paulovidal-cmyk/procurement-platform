@@ -79,7 +79,7 @@ export function CriacaoPacotes({ initialPkg, onSaved }) {
               onClick={handleSave}
               disabled={!form.subcategoria}
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
-              style={{ backgroundColor: saved ? '#10CB9A' : '#0D3125' }}
+              style={{ backgroundColor: saved ? '#00D26A' : '#0D3125' }}
             >
               {saved ? <CheckCircle size={14} /> : <Save size={14} />}
               {saved ? 'Salvo!' : 'Salvar Pacote'}
@@ -166,7 +166,7 @@ export function CriacaoPacotes({ initialPkg, onSaved }) {
                         className="flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-lg transition-all"
                         style={{
                           background: linha.tipoVariacao === 'ponta_a_ponta'
-                            ? 'rgba(16,203,154,0.12)' : 'rgba(96,165,250,0.12)',
+                            ? 'rgba(0,210,106,0.12)' : 'rgba(96,165,250,0.12)',
                           color: linha.tipoVariacao === 'ponta_a_ponta' ? '#0D9488' : '#3B82F6',
                         }}
                         title={linha.tipoVariacao === 'ponta_a_ponta' ? 'Ponta a Ponta' : 'Média Móvel 12m'}
@@ -292,8 +292,8 @@ export function CriacaoPacotes({ initialPkg, onSaved }) {
               </div>
 
               <div className="rounded-xl p-3 text-center"
-                style={{ background: variacaoFinal < 0 ? 'rgba(16,203,154,0.08)' : 'rgba(239,68,68,0.06)',
-                         border: `2px solid ${variacaoFinal < 0 ? 'rgba(16,203,154,0.3)' : 'rgba(239,68,68,0.2)'}` }}>
+                style={{ background: variacaoFinal < 0 ? 'rgba(0,210,106,0.08)' : 'rgba(239,68,68,0.06)',
+                         border: `2px solid ${variacaoFinal < 0 ? 'rgba(0,210,106,0.3)' : 'rgba(239,68,68,0.2)'}` }}>
                 <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Resultado Final</p>
                 <p className={`text-lg font-black ${BADGE(variacaoFinal)}`}>{fmtPct(variacaoFinal)}</p>
                 <p className="text-[10px] text-gray-400 mt-0.5">

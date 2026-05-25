@@ -17,8 +17,8 @@ export function SupplierRiskShield() {
       {/* Sidebar */}
       <aside className="w-56 flex-shrink-0 flex flex-col py-5 px-3 border-r bg-white"
         style={{ borderColor: 'rgba(13,49,37,0.1)' }}>
-        <div className="flex items-center gap-2 px-2 mb-4">
-          <Shield size={15} style={{ color: '#10CB9A' }} />
+          <div className="flex items-center gap-2 px-2 mb-4">
+          <Shield size={15} style={{ color: '#00D26A' }} />
           <p className="text-[10px] font-bold uppercase tracking-widest"
             style={{ color: 'rgba(13,49,37,0.35)' }}>
             Supplier Risk Shield
@@ -35,16 +35,16 @@ export function SupplierRiskShield() {
                 onClick={() => setActive(item.id)}
                 className="relative w-full text-left px-3 py-3 rounded-xl transition-all"
                 style={{
-                  background: isActive ? 'rgba(16,203,154,0.12)' : 'transparent',
-                  border:     isActive ? '1px solid rgba(16,203,154,0.2)' : '1px solid transparent',
+                  background: isActive ? 'rgba(0,210,106,0.12)' : 'transparent',
+                  border:     isActive ? '1px solid rgba(0,210,106,0.2)' : '1px solid transparent',
                 }}
               >
                 {isActive && (
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full"
-                    style={{ background: '#10CB9A' }} />
+                    style={{ background: '#00D26A' }} />
                 )}
                 <div className="flex items-center gap-2.5">
-                  <Icon size={15} style={{ color: isActive ? '#10CB9A' : 'rgba(13,49,37,0.35)' }} />
+                  <Icon size={15} style={{ color: isActive ? '#00D26A' : 'rgba(13,49,37,0.35)' }} />
                   <div>
                     <p className="text-xs font-semibold leading-tight"
                       style={{ color: isActive ? '#0D3125' : 'rgba(13,49,37,0.6)' }}>

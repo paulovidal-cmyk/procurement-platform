@@ -50,14 +50,14 @@ export function Login() {
           </div>
           <div>
             <p className="text-2xl font-black tracking-tight">stone.</p>
-            <p className="text-xs text-white/60 uppercase tracking-widest">Procurement Platform</p>
+            <p className="text-xs text-white/60 uppercase tracking-widest">Plataforma de Compras</p>
           </div>
         </div>
 
         <div>
           <h1 className="text-5xl font-black leading-tight mb-6">
             Governança de<br />
-            <span style={{ color: '#10CB9A' }}>Compras</span><br />
+            <span style={{ color: '#00D26A' }}>Compras</span><br />
             Inteligente
           </h1>
           <p className="text-white/70 text-lg leading-relaxed max-w-sm">
@@ -72,7 +72,7 @@ export function Login() {
             { label:'Lead Time',   value:'4.2 dias',  sub:'média aprovação' },
           ].map(stat => (
             <div key={stat.label} className="bg-white/10 backdrop-blur rounded-xl p-4">
-              <p className="text-2xl font-bold" style={{ color:'#10CB9A' }}>{stat.value}</p>
+              <p className="text-2xl font-bold" style={{ color:'#00D26A' }}>{stat.value}</p>
               <p className="text-sm text-white font-medium mt-1">{stat.label}</p>
               <p className="text-xs text-white/50">{stat.sub}</p>
             </div>
@@ -88,7 +88,7 @@ export function Login() {
             {/* Mobile logo */}
             <div className="lg:hidden flex items-center gap-2 mb-8">
               <ShoppingCart size={24} style={{ color:'#0D3125' }} />
-              <span className="text-xl font-black" style={{ color:'#0D3125' }}>stone. Procurement</span>
+              <span className="text-xl font-black" style={{ color:'#0D3125' }}>stone. Compras</span>
             </div>
 
             <h2 className="text-2xl font-bold text-gray-900 mb-1">Entrar na plataforma</h2>
@@ -149,7 +149,7 @@ export function Login() {
                 type="submit"
                 disabled={!email.trim() || !password.trim() || status === 'loading'}
                 className="w-full py-3 rounded-xl font-semibold text-white transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-1"
-                style={{ backgroundColor:'#10CB9A' }}
+                 style={{ backgroundColor:'#00D26A' }}
               >
                 {status === 'loading' ? (
                   <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />

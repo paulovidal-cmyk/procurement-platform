@@ -38,7 +38,7 @@ export const COLUMN_DEFS = [
   {
     id: 'aprovado',
     label: 'Aprovado',
-    headerColor: '#10CB9A',   // Stone green
+    headerColor: '#00D26A',   // Stone green
     headerText: '#ffffff',
     bodyBg: '#F0FDF4',        // green-50
     isTerminal: true,

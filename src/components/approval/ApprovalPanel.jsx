@@ -7,7 +7,7 @@ import { canUserApproveColumn } from '../../algorithms/approvalRouter.js'
 import { COLUMN_MAP } from '../../constants/columns.js'
 import { CATEGORY_MAP } from '../../constants/categories.js'
 
-const STONE_GREEN = '#10CB9A'
+const STONE_GREEN = '#00D26A'
 
 export function ApprovalPanel() {
   const isOpen = useAppStore(s => s.uiState.isApprovalPanelOpen)
