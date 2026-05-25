@@ -44,14 +44,10 @@ export function Login() {
 
       {/* Left: Branding */}
       <div className="hidden lg:flex flex-col justify-between w-1/2 p-16 text-white">
-        <div className="flex items-center gap-3">
-          <div className="bg-white/10 backdrop-blur rounded-2xl p-3">
-            <ShoppingCart size={28} className="text-white" />
-          </div>
-          <div>
-            <p className="text-2xl font-black tracking-tight">stone.</p>
-            <p className="text-xs text-white/60 uppercase tracking-widest">Plataforma de Compras</p>
-          </div>
+        <div>
+          <img src="/logo.svg" alt="StoneCo" className="h-10 w-auto mb-8" />
+          <p className="text-2xl font-black tracking-tight">stoneco</p>
+          <p className="text-xs text-white/60 uppercase tracking-widest">Plataforma de Compras</p>
         </div>
 
         <div>
@@ -87,8 +83,8 @@ export function Login() {
 
             {/* Mobile logo */}
             <div className="lg:hidden flex items-center gap-2 mb-8">
-              <ShoppingCart size={24} style={{ color:'#0D3125' }} />
-              <span className="text-xl font-black" style={{ color:'#0D3125' }}>stone. Compras</span>
+              <img src="/logo.svg" alt="StoneCo" className="h-10 w-auto" />
+              <span className="text-xl font-black" style={{ color:'#0D3125' }}>stoneco</span>
             </div>
 
             <h2 className="text-2xl font-bold text-gray-900 mb-1">Entrar na plataforma</h2>
