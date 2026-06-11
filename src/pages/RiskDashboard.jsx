@@ -13,6 +13,27 @@ const BRAND = '#00D26A'
 
 // ─── Atoms ──────────────────────────────────────────────────────────────────────
 
+/**
+ * Tick customizado do radar: mostra o rótulo do eixo e, logo abaixo, a
+ * subpontuação daquele vértice num número pequeno colorido pelo nível de risco.
+ * `valueMap` mapeia subject → valor; recharts injeta x, y, payload, textAnchor.
+ */
+function RadarValueTick({ x, y, payload, textAnchor, valueMap }) {
+  const val = valueMap?.[payload.value]
+  return (
+    <g>
+      <text x={x} y={y} textAnchor={textAnchor} dominantBaseline="central"
+        fontSize={11} fontWeight={600} fill="#5B6B66">
+        {payload.value}
+      </text>
+      <text x={x} y={y + 12} textAnchor={textAnchor} dominantBaseline="central"
+        fontSize={11} fontWeight={800} fill={riskColor(val)} className="tabular-nums">
+        {val != null ? Math.round(val) : '—'}
+      </text>
+    </g>
+  )
+}
+
 function NotaBadge({ nota, lg = false }) {
   const sz = lg ? 'w-7 h-7 text-[11px]' : 'w-6 h-6 text-[10px]'
   return (
@@ -59,6 +80,31 @@ function MiniBar({ label, value }) {
       <span className="text-[10px] font-bold tabular-nums w-7 text-right" style={{ color }}>
         {Math.round(value ?? 0)}
       </span>
+    </div>
+  )
+}
+
+/** Converte "1996-02-26" → "26/02/1996"; devolve o original se não casar. */
+function fmtDateISO(raw) {
+  if (!raw) return null
+  const m = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})/)
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : String(raw)
+}
+
+/** Item rotulado de "ficha" — não renderiza nada se o valor estiver vazio. */
+function Fact({ label, value, className = '', badgeColor }) {
+  if (value == null || value === '') return null
+  return (
+    <div className={className}>
+      <p className="text-[9px] uppercase tracking-wider text-subtle font-semibold">{label}</p>
+      {badgeColor ? (
+        <span className="inline-flex items-center mt-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold"
+          style={{ background: `${badgeColor}1a`, color: badgeColor }}>
+          {value}
+        </span>
+      ) : (
+        <p className="text-[11px] font-semibold text-ink leading-snug mt-0.5">{value}</p>
+      )}
     </div>
   )
 }
@@ -155,6 +201,27 @@ function InlineDetail({ s }) {
             </div>
           )}
         </div>
+
+        {/* FULL WIDTH — Dados cadastrais / da empresa */}
+        {(s.quadrante || s.situacao_cadastral || s.cnae || s.data_inicio_atividade || s.capital_social || s.ticket_medio || s.anos_atividade != null) && (
+          <div className="col-span-12 pt-3 border-t border-line">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Building2 size={11} className="text-subtle" />
+              <p className="text-[9px] font-semibold uppercase tracking-wider text-subtle">Dados da empresa</p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-5 gap-y-2.5">
+              <Fact label="Quadrante" value={s.quadrante} />
+              <Fact label="Situação cadastral" value={s.situacao_cadastral}
+                badgeColor={/ativa/i.test(s.situacao_cadastral || '') ? '#10b981' : '#f59e0b'} />
+              <Fact label="Início de atividade" value={fmtDateISO(s.data_inicio_atividade)} />
+              <Fact label="Anos de atividade"
+                value={s.anos_atividade != null ? `${s.anos_atividade.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} anos` : null} />
+              <Fact label="Capital social" value={s.capital_social ? fmtSpend(s.capital_social) : null} />
+              <Fact label="Ticket médio" value={s.ticket_medio ? fmtSpend(s.ticket_medio) : null} />
+              <Fact label="CNAE" value={s.cnae} className="col-span-2 sm:col-span-3 lg:col-span-6" />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -187,7 +254,7 @@ export function RiskDashboard() {
     let b = suppliers
     if (catFilter !== 'Todas') b = b.filter(s => s.categoria === catFilter)
     if (subFilter !== 'Todas') b = b.filter(s => s.subcategoria === subFilter)
-    return ['Todos', ...b.map(s => s.fornecedor)]
+    return ['Todos', ...new Set(b.map(s => s.fornecedor).filter(Boolean))]
   }, [suppliers, catFilter, subFilter])
 
   const filtered = useMemo(() => {
@@ -216,6 +283,10 @@ export function RiskDashboard() {
   ]
   const heroColor = riskColor(globalRadar.geral)
   const heroLabel = riskLabel(globalRadar.geral)
+  const radarValueMap = useMemo(
+    () => Object.fromEntries(radarData.map(d => [d.subject, d.value])),
+    [radarData]
+  )
 
   // ── Sort ────────────────────────────────────────────────────────────────────
   const toggleSort = (key) => {
@@ -268,11 +339,11 @@ export function RiskDashboard() {
                 style={{ background: 'linear-gradient(135deg, rgba(0,210,106,0.06) 0%, rgba(255,255,255,0) 60%)' }}>
                 <div className="relative" style={{ width: 280, height: 230 }}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="68%">
+                    <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="62%">
                       <PolarGrid gridType="polygon" stroke="rgba(15,23,23,0.08)" />
                       <PolarAngleAxis
                         dataKey="subject"
-                        tick={{ fontSize: 11, fill: '#5B6B66', fontWeight: 600 }}
+                        tick={<RadarValueTick valueMap={radarValueMap} />}
                       />
                       <Radar
                         dataKey="value"
@@ -320,7 +391,7 @@ export function RiskDashboard() {
                       Risco {heroLabel}
                     </h2>
                     <p className="text-[11px] text-muted mt-1">
-                      Média ponderada das três dimensões avaliadas · {filtered.length} fornecedor{filtered.length !== 1 ? 'es' : ''}
+                      Média ponderada pelo spend · {filtered.length} fornecedor{filtered.length !== 1 ? 'es' : ''}
                     </p>
                   </div>
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold flex-shrink-0"
@@ -402,10 +473,10 @@ export function RiskDashboard() {
                     {sTH('Categoria',   'categoria',         'px-3 text-left')}
                     {sTH('Spend',       'spend',             'px-3 text-right')}
                     {sTH('Pedidos',     'qtd_pedidos',       'px-2 text-center')}
-                    {sTH('Saúde',       'nota_financeira',   'px-2 text-center')}
-                    {sTH('Reputação',   'nota_inteligencia', 'px-2 text-center')}
-                    {sTH('Interna',     'nota_risco',        'px-2 text-center')}
                     {sTH('Geral',       'nota_geral',        'px-2 text-center')}
+                    {sTH('Saúde',       'nota_financeira',   'px-2 text-center')}
+                    {sTH('Interna',     'nota_risco',        'px-2 text-center')}
+                    {sTH('Reputação',   'nota_inteligencia', 'px-2 text-center')}
                     {sTH('Evidência',   null,                'px-3 text-left')}
                     {sTH('',            null,                'w-6')}
                   </tr>
@@ -442,12 +513,12 @@ export function RiskDashboard() {
                           <td className="px-2 py-2 text-center text-muted font-medium tabular-nums">
                             {(sup.qtd_pedidos || 0).toLocaleString('pt-BR')}
                           </td>
-                          <td className="px-2 py-2"><NotaBadge nota={sup.nota_financeira} /></td>
-                          <td className="px-2 py-2"><NotaBadge nota={sup.nota_inteligencia} /></td>
-                          <td className="px-2 py-2"><NotaBadge nota={sup.nota_risco} /></td>
                           <td className="px-2 py-2" style={{ background: riskBg(sup.nota_geral) }}>
                             <NotaBadge nota={sup.nota_geral} lg />
                           </td>
+                          <td className="px-2 py-2"><NotaBadge nota={sup.nota_financeira} /></td>
+                          <td className="px-2 py-2"><NotaBadge nota={sup.nota_risco} /></td>
+                          <td className="px-2 py-2"><NotaBadge nota={sup.nota_inteligencia} /></td>
                           <td className="px-3 py-2">
                             {sup.evidencia_titulo ? (
                               <div className="flex items-center gap-1.5" style={{ maxWidth: 220 }}>

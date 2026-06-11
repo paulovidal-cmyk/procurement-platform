@@ -5,25 +5,25 @@ import useRiskStore from '../store/useRiskStore.js'
 import { processRow } from '../algorithms/risk.js'
 
 const SCHEMA_COLS = [
-  { col: 'fornecedor',          req: true,  desc: 'Nome do fornecedor' },
-  { col: 'cnpj',                req: true,  desc: 'CNPJ (XX.XXX.XXX/XXXX-XX)' },
-  { col: 'categoria',           req: true,  desc: 'Categoria de compras' },
-  { col: 'subcategoria',        req: false, desc: 'Subcategoria' },
-  { col: 'spend',               req: false, desc: 'Spend em R$ (aceita "R$ 1.234,56" ou número)' },
-  { col: 'qtd_pedidos',         req: false, desc: 'Quantidade de pedidos (número inteiro)' },
-  { col: 'nota_geral',          req: false, desc: 'Nota 0–100 (vazio = 100)' },
-  { col: 'nota_financeira',     req: false, desc: 'Nota financeira 0–100' },
-  { col: 'nota_inteligencia',   req: false, desc: 'Nota inteligência 0–100' },
-  { col: 'nota_risco',          req: false, desc: 'Nota risco 0–100' },
-  { col: 'fin_situacao',        req: false, desc: 'Sub-nota situação financeira' },
-  { col: 'fin_maturidade',      req: false, desc: 'Sub-nota maturidade financeira' },
-  { col: 'fin_exposicao',       req: false, desc: 'Sub-nota exposição financeira' },
-  { col: 'int_kraljic',         req: false, desc: 'Sub-nota Kraljic' },
-  { col: 'int_pedidos',         req: false, desc: 'Sub-nota pedidos' },
-  { col: 'int_ticket',          req: false, desc: 'Sub-nota ticket médio' },
-  { col: 'evidencia_titulo',    req: false, desc: 'Título da notícia/evidência' },
-  { col: 'link_noticia',        req: false, desc: 'URL da notícia' },
-  { col: 'analise_ia_detalhada',req: false, desc: 'Texto de análise detalhada' },
+  { col: 'Nome Fornecedor',       req: true,  desc: 'Nome do fornecedor (fallback: coluna "Fornecedor")' },
+  { col: 'CNPJ',                  req: false, desc: 'CNPJ' },
+  { col: 'Categoria',             req: false, desc: 'Categoria de compras' },
+  { col: 'Subcategoria',          req: false, desc: 'Subcategoria' },
+  { col: 'Quantidade de Pedidos', req: false, desc: 'Nº de pedidos (inteiro)' },
+  { col: 'Spend',                 req: false, desc: 'Spend em R$ (aceita "1.234.567,89" ou número)' },
+  { col: 'nota_geral',            req: false, desc: 'Nota geral 0–100 (vazio = 100)' },
+  { col: 'score_saude_financeira',req: false, desc: 'Nota da dimensão Saúde (0–100)' },
+  { col: 'score_reputacao',       req: false, desc: 'Nota da dimensão Reputação (0–100)' },
+  { col: 'score_dados_internos',  req: false, desc: 'Nota da dimensão Interna (0–100)' },
+  { col: 'fin_situacao',          req: false, desc: 'Sub-nota situação financeira' },
+  { col: 'fin_maturidade',        req: false, desc: 'Sub-nota maturidade financeira' },
+  { col: 'fin_exposicao',         req: false, desc: 'Sub-nota exposição financeira' },
+  { col: 'int_kraljic',           req: false, desc: 'Sub-nota Kraljic' },
+  { col: 'int_pedidos',           req: false, desc: 'Sub-nota pedidos' },
+  { col: 'int_ticket',            req: false, desc: 'Sub-nota ticket médio' },
+  { col: 'evidencia_noticia',     req: false, desc: 'Título da notícia/evidência' },
+  { col: 'link_noticia',          req: false, desc: 'URL da notícia' },
+  { col: 'analise_ia_detalhada',  req: false, desc: 'Texto de análise detalhada' },
 ]
 
 export function RiskUpload({ onDone }) {
@@ -67,9 +67,23 @@ export function RiskUpload({ onDone }) {
 
       if (!processed.length) throw new Error('Nenhum fornecedor válido encontrado. Verifique se a coluna "fornecedor" está presente.')
 
-      importSuppliers(processed)
+      // Dedupe: colapsa fornecedores repetidos (chave = CNPJ ou, na falta, o nome)
+      const seen = new Set()
+      const deduped = processed.filter(s => {
+        const digits = s.cnpj ? s.cnpj.replace(/\D/g, '') : ''
+        const key = digits || s.fornecedor.trim().toLowerCase()
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+      const removed = processed.length - deduped.length
+
+      importSuppliers(deduped)
       setStatus('success')
-      setMessage(`${processed.length} fornecedores importados com sucesso.`)
+      setMessage(
+        `${deduped.length} fornecedores importados com sucesso.` +
+        (removed > 0 ? ` (${removed} duplicata${removed !== 1 ? 's' : ''} removida${removed !== 1 ? 's' : ''})` : '')
+      )
       setTimeout(() => onDone?.(), 1200)
     } catch (err) {
       setStatus('error')
@@ -185,9 +199,14 @@ export function RiskUpload({ onDone }) {
             <div className="flex items-center gap-2 px-4 py-2.5 border-b"
             style={{ borderColor: 'rgba(13,49,37,0.06)' }}>
             <Table size={13} style={{ color: '#00D26A' }} />
-            <p className="text-xs font-semibold" style={{ color: '#0D3125' }}>
-              Estrutura esperada das colunas
-            </p>
+            <div>
+              <p className="text-xs font-semibold" style={{ color: '#0D3125' }}>
+                Estrutura esperada das colunas
+              </p>
+              <p className="text-[10px]" style={{ color: 'rgba(13,49,37,0.4)' }}>
+                Compatível com o export do n8n. Nomes antigos (nota_financeira, qtd_pedidos, evidencia_titulo) também são aceitos; colunas extras são ignoradas.
+              </p>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">

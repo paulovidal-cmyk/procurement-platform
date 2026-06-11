@@ -14,6 +14,21 @@ export function parseSpend(raw) {
   return isNaN(v) ? 0 : v
 }
 
+/**
+ * Parse numérico tolerante a formato misto:
+ *  - com vírgula → pt-BR ("1.234.567,89"): ponto = milhar, vírgula = decimal
+ *  - sem vírgula → US/plano ("2950125.20", "265000"): ponto = decimal
+ */
+export function parseNumber(raw) {
+  if (raw === null || raw === undefined || raw === '') return 0
+  if (typeof raw === 'number') return raw
+  let s = String(raw).replace(/R\$\s?/g, '').trim()
+  if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.')
+  s = s.replace(/[^\d.-]/g, '')
+  const v = parseFloat(s)
+  return isNaN(v) ? 0 : v
+}
+
 /** Parse nota — campo vazio ou ausente é tratado como 100 */
 export function parseNota(raw) {
   if (raw === null || raw === undefined || raw === '') return 100
@@ -43,39 +58,73 @@ export function riskLabel(nota) {
   return 'Alto'
 }
 
-/** Transforma linha de CSV/JSON em objeto fornecedor normalizado */
+/** Primeiro valor não-vazio entre várias chaves possíveis (aliases de coluna). */
+function pick(row, ...keys) {
+  for (const k of keys) {
+    const v = row[k]
+    if (v !== null && v !== undefined && String(v).trim() !== '') return v
+  }
+  return ''
+}
+
+/**
+ * Transforma linha de CSV/JSON em objeto fornecedor normalizado.
+ * Aceita tanto o schema antigo (nota_financeira, qtd_pedidos, evidencia_titulo…)
+ * quanto o export do n8n (score_saude_financeira, quantidade_de_pedidos,
+ * score_reputacao, score_dados_internos, evidencia_noticia…).
+ */
 export function processRow(row, idx) {
-  const ng = parseNota(row.nota_geral)
+  const ng = parseNota(pick(row, 'nota_geral'))
   return {
     id: row.id || `imp-${idx}`,
-    fornecedor:    String(row.fornecedor    || row.Fornecedor    || '').trim(),
-    cnpj:          String(row.cnpj          || row.CNPJ          || '').trim(),
-    categoria:     String(row.categoria     || row.Categoria     || '').trim(),
-    subcategoria:  String(row.subcategoria  || row.Subcategoria  || '').trim(),
-    spend:       parseSpend(row.spend || row.Spend || ''),
-    qtd_pedidos: parseInt(String(row.qtd_pedidos || row.pedidos || '0').replace(/\D/g, ''), 10) || 0,
+    fornecedor:    String(pick(row, 'nome_fornecedor', 'fornecedor', 'Fornecedor', 'Nome Fornecedor')).trim(),
+    cnpj:          String(pick(row, 'cnpj', 'CNPJ')).trim(),
+    categoria:     String(pick(row, 'categoria', 'Categoria')).trim(),
+    subcategoria:  String(pick(row, 'subcategoria', 'Subcategoria')).trim(),
+    spend:       parseSpend(pick(row, 'spend', 'Spend')),
+    qtd_pedidos: parseInt(String(pick(row, 'qtd_pedidos', 'pedidos', 'quantidade_de_pedidos') || '0').replace(/\D/g, ''), 10) || 0,
     nota_geral:       ng,
-    nota_financeira:  parseNota(row.nota_financeira),
-    nota_inteligencia:parseNota(row.nota_inteligencia),
-    nota_risco:       parseNota(row.nota_risco),
-    fin_situacao:  parseNota(row.fin_situacao),
-    fin_maturidade:parseNota(row.fin_maturidade),
-    fin_exposicao: parseNota(row.fin_exposicao),
-    int_kraljic:   parseNota(row.int_kraljic),
-    int_pedidos:   parseNota(row.int_pedidos),
-    int_ticket:    parseNota(row.int_ticket),
+    nota_financeira:  parseNota(pick(row, 'nota_financeira',   'score_saude_financeira')),
+    nota_inteligencia:parseNota(pick(row, 'nota_inteligencia', 'score_reputacao')),
+    nota_risco:       parseNota(pick(row, 'nota_risco',        'score_dados_internos')),
+    fin_situacao:  parseNota(pick(row, 'fin_situacao')),
+    fin_maturidade:parseNota(pick(row, 'fin_maturidade')),
+    fin_exposicao: parseNota(pick(row, 'fin_exposicao')),
+    int_kraljic:   parseNota(pick(row, 'int_kraljic')),
+    int_pedidos:   parseNota(pick(row, 'int_pedidos')),
+    int_ticket:    parseNota(pick(row, 'int_ticket')),
     status_risco:  riskLabel(ng),
-    evidencia_titulo:    String(row.evidencia_titulo    || '').trim(),
-    link_noticia:        String(row.link_noticia        || '').trim(),
-    analise_ia_detalhada:String(row.analise_ia_detalhada|| '').trim(),
+    evidencia_titulo:    String(pick(row, 'evidencia_titulo', 'evidencia_noticia')).trim(),
+    link_noticia:        String(pick(row, 'link_noticia')).trim(),
+    analise_ia_detalhada:String(pick(row, 'analise_ia_detalhada')).trim(),
+    // ── Dados cadastrais / da empresa (export n8n) ──────────────────────────
+    quadrante:              String(pick(row, 'quadrante', 'Quadrante')).trim(),
+    situacao_cadastral:     String(pick(row, 'descricao_situacao_cadastral', 'situacao_cadastral')).trim(),
+    capital_social:         parseNumber(pick(row, 'capital_social')),
+    data_inicio_atividade:  String(pick(row, 'data_inicio_atividade')).trim(),
+    cnae:                   String(pick(row, 'cnae_fiscal_descricao', 'cnae')).trim(),
+    anos_atividade:         parseFloat(String(pick(row, 'anos_atividade')).replace(',', '.')) || null,
+    ticket_medio:           parseNumber(pick(row, 'ticket_medio')),
+    percentual_exposicao:   String(pick(row, 'percentual_exposicao')).trim(),
   }
 }
 
-/** Calcula médias globais para o radar */
+/**
+ * Calcula as médias globais do radar/totalizadores, PONDERADAS PELO SPEND.
+ * Fornecedores de maior spend pesam mais na média da tela.
+ * Recebe a lista já filtrada — então recalcula a cada mudança de filtro.
+ * Se o spend total for zero (sem dados de spend), cai para média simples.
+ */
 export function calcGlobalRadar(suppliers) {
   if (!suppliers.length) return { financeiro: 0, inteligencia: 0, risco: 0, geral: 0 }
   const n = suppliers.length
-  const avg = k => suppliers.reduce((s, p) => s + (p[k] ?? 0), 0) / n
+  const totalSpend = suppliers.reduce((s, p) => s + (p.spend ?? 0), 0)
+  const avg = (k) => {
+    if (totalSpend > 0) {
+      return suppliers.reduce((s, p) => s + (p[k] ?? 0) * (p.spend ?? 0), 0) / totalSpend
+    }
+    return suppliers.reduce((s, p) => s + (p[k] ?? 0), 0) / n
+  }
   return {
     financeiro:   avg('nota_financeira'),
     inteligencia: avg('nota_inteligencia'),
