@@ -2,71 +2,30 @@ import { useState } from 'react'
 import { Shield, LayoutGrid, Upload } from 'lucide-react'
 import { RiskDashboard } from './RiskDashboard.jsx'
 import { RiskUpload }    from './RiskUpload.jsx'
+import { HubSidebar }    from '../components/layout/HubSidebar.jsx'
+import useAppStore from '../store/useAppStore.js'
 
-const SUBNAV = [
-  { id: 'dashboard', icon: LayoutGrid, label: 'Dashboard de Risco', desc: 'Visão consolidada' },
-  { id: 'importar',  icon: Upload,     label: 'Importar Dados',     desc: 'CSV ou JSON local' },
+const SUBNAV_ALL = [
+  { id: 'dashboard', icon: LayoutGrid, label: 'Dashboard de Risco', desc: 'Visão consolidada', adminOnly: false },
+  { id: 'importar',  icon: Upload,     label: 'Importar Dados',     desc: 'CSV ou JSON local', adminOnly: true  },
 ]
 
 export function SupplierRiskShield() {
+  const currentUser = useAppStore(s => s.currentUser)
+  const isAdmin     = currentUser?.role === 'admin'
+  const SUBNAV      = SUBNAV_ALL.filter(item => !item.adminOnly || isAdmin)
   const [active, setActive] = useState('dashboard')
 
   return (
     <div className="flex h-full overflow-hidden" style={{ background: '#e9f3f0' }}>
 
-      {/* Sidebar */}
-      <aside className="w-56 flex-shrink-0 flex flex-col py-5 px-3 border-r bg-white"
-        style={{ borderColor: 'rgba(13,49,37,0.1)' }}>
-          <div className="flex items-center gap-2 px-2 mb-4">
-          <Shield size={15} style={{ color: '#00D26A' }} />
-          <p className="text-[10px] font-bold uppercase tracking-widest"
-            style={{ color: 'rgba(13,49,37,0.35)' }}>
-            Supplier Risk Shield
-          </p>
-        </div>
-
-        <nav className="flex flex-col gap-1">
-          {SUBNAV.map(item => {
-            const Icon     = item.icon
-            const isActive = active === item.id
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActive(item.id)}
-                className="relative w-full text-left px-3 py-3 rounded-xl transition-all"
-                style={{
-                  background: isActive ? 'rgba(0,210,106,0.12)' : 'transparent',
-                  border:     isActive ? '1px solid rgba(0,210,106,0.2)' : '1px solid transparent',
-                }}
-              >
-                {isActive && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full"
-                    style={{ background: '#00D26A' }} />
-                )}
-                <div className="flex items-center gap-2.5">
-                  <Icon size={15} style={{ color: isActive ? '#00D26A' : 'rgba(13,49,37,0.35)' }} />
-                  <div>
-                    <p className="text-xs font-semibold leading-tight"
-                      style={{ color: isActive ? '#0D3125' : 'rgba(13,49,37,0.6)' }}>
-                      {item.label}
-                    </p>
-                    <p className="text-[10px] mt-0.5 leading-tight"
-                      style={{ color: 'rgba(13,49,37,0.35)' }}>
-                      {item.desc}
-                    </p>
-                  </div>
-                </div>
-              </button>
-            )
-          })}
-        </nav>
-      </aside>
+      <HubSidebar title="Supplier Risk Shield" titleIcon={Shield} items={SUBNAV} active={active} onSelect={setActive} />
 
       {/* Content */}
       <div className="flex-1 overflow-hidden">
-        {active === 'dashboard'
-          ? <RiskDashboard />
-          : <RiskUpload onDone={() => setActive('dashboard')} />
+        {active === 'importar' && isAdmin
+          ? <RiskUpload onDone={() => setActive('dashboard')} />
+          : <RiskDashboard />
         }
       </div>
     </div>
