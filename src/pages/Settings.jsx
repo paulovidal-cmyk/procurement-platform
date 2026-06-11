@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { Users, CheckCircle, XCircle, Shield, Clock, Mail, AlertTriangle,
-         Sliders, Database, RotateCcw, UserPlus, Trash2 } from 'lucide-react'
+         Sliders, Database, RotateCcw, UserPlus, Trash2, ShieldCheck } from 'lucide-react'
 import { Button } from '../components/ui/Button.jsx'
 import { ROLES } from '../constants/roles.js'
 import useAppStore from '../store/useAppStore.js'
 import { formatDateTime } from '../utils/formatters.js'
 import { FieldManager } from '../components/settings/FieldManager.jsx'
 import { SheetsConfig } from '../components/settings/SheetsConfig.jsx'
+import { PermissionsManager } from '../components/settings/PermissionsManager.jsx'
 
 const ROLE_OPTIONS = Object.values(ROLES)
 
@@ -96,6 +97,7 @@ export function Settings() {
     { id:'users',   label:'Usuários Ativos',       icon:Users,    count:allUsers.length },
     { id:'pending', label:'Aguardando',             icon:Clock,    count:pendingUsers.length },
     { id:'fields',  label:'Campos do Formulário',   icon:Sliders,  count:null },
+    { id:'permissions', label:'Permissões de Acesso', icon:ShieldCheck, count:null },
     { id:'sheets',  label:'Conexão Sheets',         icon:Database, count:null },
   ]
 
@@ -274,6 +276,9 @@ export function Settings() {
 
       {/* ── Campos do Formulário ── */}
       {activeTab === 'fields' && <FieldManager />}
+
+      {/* ── Permissões de Acesso ── */}
+      {activeTab === 'permissions' && <PermissionsManager />}
 
       {/* ── Conexão Sheets ── */}
       {activeTab === 'sheets' && <SheetsConfig />}

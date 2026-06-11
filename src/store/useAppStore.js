@@ -5,8 +5,19 @@ import { calculateVPL } from '../algorithms/vplCalculator.js'
 import { routeCard } from '../algorithms/approvalRouter.js'
 import { hashPassword } from '../algorithms/crypto.js'
 import { fetchSheetData } from '../services/googleSheets.js'
-import { DEMO_USERS } from '../constants/roles.js'
+import { DEMO_USERS, ROLES } from '../constants/roles.js'
+import { MODULES, ACCESS } from '../constants/modules.js'
 import { MOCK_SHEETS_DATA } from '../data/mockSheetsData.js'
+
+/** Matriz de permissões padrão: todo papel com acesso total a todo módulo. */
+function defaultModulePermissions() {
+  const out = {}
+  for (const roleId of Object.keys(ROLES)) {
+    out[roleId] = {}
+    for (const m of MODULES) out[roleId][m.id] = ACCESS.FULL
+  }
+  return out
+}
 
 const SCHEMA_VERSION = 3
 
@@ -164,6 +175,9 @@ const useAppStore = create(
       // Navigation
       currentPage: 'kanban',
 
+      // UI — sidebar dos hubs (recolhida ou expandida)
+      sidebarCollapsed: false,
+
       // Cards
       cards: SEED_CARDS,
       cardCounter: 8,
@@ -177,6 +191,9 @@ const useAppStore = create(
 
       // Custom Fields
       customFields: SEED_CUSTOM_FIELDS,
+
+      // Permissões de acesso por papel × módulo (admin sempre full)
+      modulePermissions: defaultModulePermissions(),
 
       // Google Sheets
       sheetsConfig: { webAppUrl: '', sheetId: '', apiKey: '', range: 'Export!A:I' },
@@ -257,6 +274,21 @@ const useAppStore = create(
 
       // ── Navigation ────────────────────────────────────────────────────────────
       navigate: (page) => set({ currentPage: page }),
+
+      // ── UI: sidebar collapse ────────────────────────────────────────────────────
+      toggleSidebar: () => set(s => ({ sidebarCollapsed: !s.sidebarCollapsed })),
+      setSidebarCollapsed: (v) => set({ sidebarCollapsed: v }),
+
+      // ── Module Permissions (admin) ──────────────────────────────────────────────
+      setModulePermission: (roleId, moduleId, level) =>
+        set(s => ({
+          modulePermissions: {
+            ...s.modulePermissions,
+            [roleId]: { ...(s.modulePermissions[roleId] || {}), [moduleId]: level },
+          },
+        })),
+
+      resetModulePermissions: () => set({ modulePermissions: defaultModulePermissions() }),
 
       // ── User Management ───────────────────────────────────────────────────────
       approveUser: (userId) => {
@@ -466,6 +498,8 @@ const useAppStore = create(
         customFields:    state.customFields,
         sheetsConfig:    state.sheetsConfig,
         sheetsData:      state.sheetsData,
+        modulePermissions: state.modulePermissions,
+        sidebarCollapsed: state.sidebarCollapsed,
       }),
       onRehydrateStorage: () => (state) => {
         if (!state) return
@@ -481,6 +515,15 @@ const useAppStore = create(
         if (!state.sheetsConfig) state.sheetsConfig = { webAppUrl:'', sheetId:'', apiKey:'', range:'Export!A:I' }
         if (!state.sheetsConfig.webAppUrl) state.sheetsConfig.webAppUrl = ''
         if (!state.sheetsData)  state.sheetsData  = MOCK_SHEETS_DATA
+        // Permissões: garante defaults e preenche papéis/módulos novos com 'full'
+        const defPerms = defaultModulePermissions()
+        if (!state.modulePermissions) {
+          state.modulePermissions = defPerms
+        } else {
+          for (const roleId of Object.keys(defPerms)) {
+            state.modulePermissions[roleId] = { ...defPerms[roleId], ...(state.modulePermissions[roleId] || {}) }
+          }
+        }
         // Add password fields to users that don't have them
         if (state.allUsers) {
           state.allUsers = state.allUsers.map(u => ({

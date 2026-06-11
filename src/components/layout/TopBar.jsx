@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import {
-  Plus, Settings, LayoutDashboard, BarChart2, Home, ScanLine, ShieldCheck, LogOut, ChevronDown,
+  Settings, LayoutDashboard, BarChart2, Home, ScanLine, ShieldCheck, LogOut, ChevronDown,
 } from 'lucide-react'
 import { NotificationBell } from '../notifications/NotificationBell.jsx'
 import { ROLES } from '../../constants/roles.js'
+import { accessLevel, ACCESS } from '../../constants/modules.js'
 import useAppStore from '../../store/useAppStore.js'
 import { cn } from '../../utils/cn.js'
 
@@ -37,11 +38,15 @@ export function TopBar() {
   const currentUser = useAppStore(s => s.currentUser)
   const currentPage = useAppStore(s => s.currentPage)
   const navigate    = useAppStore(s => s.navigate)
-  const openForm    = useAppStore(s => s.openForm)
   const logout      = useAppStore(s => s.logout)
+  const modulePermissions = useAppStore(s => s.modulePermissions)
   const role        = ROLES[currentUser?.role]
   const isAdmin     = currentUser?.role === 'admin'
   const [userOpen, setUserOpen] = useState(false)
+
+  const visibleNav = NAV.filter(
+    item => accessLevel(modulePermissions, currentUser?.role, item.id) !== ACCESS.HIDDEN
+  )
 
   const isActive = (id) => {
     if (id === currentPage) return true
@@ -57,7 +62,7 @@ export function TopBar() {
 
       {/* Nav */}
       <nav className="flex items-center gap-0.5 flex-1">
-        {NAV.map(item => {
+        {visibleNav.map(item => {
           const Icon = item.icon
           const active = isActive(item.id)
           return (
@@ -134,15 +139,6 @@ export function TopBar() {
           )}
         </div>
 
-        {role?.canCreate && (
-          <button
-            onClick={() => openForm()}
-            className="flex items-center gap-1.5 h-9 px-3.5 rounded-full text-xs font-semibold text-white bg-brand hover:bg-brand-hover transition-all active:scale-[0.98]"
-          >
-            <Plus size={14} strokeWidth={2.5} />
-            <span className="hidden md:inline">Novo Processo</span>
-          </button>
-        )}
       </div>
     </header>
   )
