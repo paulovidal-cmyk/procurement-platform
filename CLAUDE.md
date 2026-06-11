@@ -1,6 +1,6 @@
-# Stone Procurement Platform
+# Stone Plataforma de Compras
 
-Plataforma interna de procurement da Stone (Paulo Vidal, paulo.vidal@stone.com.br).
+Plataforma interna de compras da Stone (Paulo Vidal, paulo.vidal@stone.com.br).
 Hub integrado para: gestão de pedidos (Kanban), analytics, raio-X de preços (cost breakdowns) e gestão de risco de fornecedores.
 
 **Repo:** `paulovidal-cmyk/procurement-platform`
@@ -95,14 +95,14 @@ Helpers: `riskColor()`, `riskBg()`, `riskLabel()`
 ```
 ┌────────────────────────────────────────────────────┐
 │ TopBar (h-14, branca, border-bottom)               │
-│ [Logo] [Home Kanban Analytics Raio-X RiskShield] [🔔 ⚙ Avatar [+ Novo Processo]] │
+│ [Logo] [Home Kanban Analytics Raio-X RiskShield] [🔔 ⚙ Avatar] │
 ├────────────────────────────────────────────────────┤
 │ Main (flex-1, conteúdo da página atual)            │
 │                                                    │
 └────────────────────────────────────────────────────┘
 ```
 
-- `TopBar` em `src/components/layout/TopBar.jsx` — branca, active item com underline `#00D26A`, CTA verde pílula
+- `TopBar` em `src/components/layout/TopBar.jsx` — branca, active item com underline `#00D26A`. **Não tem mais CTA "Novo Processo"** — o botão vive dentro do `KanbanBoard` (search bar, à direita), gated por `role?.canCreate`
 - `App.jsx` faz route por `currentPage` (Zustand) — sem React Router
 - `KanbanBoard` recebe padding `p-3`; demais páginas controlam o próprio padding
 
@@ -173,6 +173,29 @@ Sempre **URLs completas e plausíveis** (ex: `https://exame.com/negocios/empresa
 
 Padrão "cascata": Categoria → Subcategoria → Fornecedor. Resetar filhos ao mudar pai.
 
+### Abas admin-only em hubs
+
+Quando uma sub-view de hub deve aparecer apenas para admin (ex.: "Importar Dados" no Risk Shield), marcar com flag `adminOnly: true` no array `SUBNAV_ALL` e filtrar dentro do componente:
+
+```jsx
+const isAdmin = currentUser?.role === 'admin'
+const SUBNAV = SUBNAV_ALL.filter(item => !item.adminOnly || isAdmin)
+```
+
+Garantir fallback no render do conteúdo: se o `active` estiver numa view admin e o usuário não for admin, cair na default (`dashboard`). Não confiar só na sidebar — proteger o conteúdo também.
+
+### Faixa de "ambiente de testes"
+
+Páginas com dados fictícios em validação levam um banner vermelho no topo, **abaixo do TopBar global** e acima do conteúdo:
+
+```jsx
+<div className="flex-shrink-0 bg-red-600 text-white text-center text-xs font-semibold py-1.5 tracking-wide">
+  Em testes, números fictícios
+</div>
+```
+
+Atualmente aplicado em: Kanban (sempre) e Analytics Hub quando `active === 'kanban'` (não aparece na view "Análise de Categoria").
+
 ### Layout do Risk Dashboard cockpit
 
 Hero é o coração da página: radar grande à esquerda (~280px) com score gigante no núcleo (gradient + box-shadow colorido). À direita: título grande "Risco {Status}" + 3 barras de progresso (Saúde / Reputação / Interna) + KPI strip.
@@ -217,7 +240,7 @@ Hero é o coração da página: radar grande à esquerda (~280px) com score giga
 
 ---
 
-## Estado atual do redesign (2026-05-06)
+## Estado atual do redesign (2026-05-29)
 
 ✅ **Foundation pronta:** tokens, Inter, paleta nova, TopBar moderna
 ✅ **Home:** hero card saving + sparkline + KPI strip + grid módulos
@@ -231,3 +254,17 @@ Hero é o coração da página: radar grande à esquerda (~280px) com score giga
 - Componentes compartilhados ainda no estilo antigo: `ProcurementForm` (modal), `ApprovalPanel`, `ChangePasswordModal`, `NotificationBell` (parcialmente migrado)
 
 Ao redesenhar próximas páginas, seguir Risk Shield e Home como referência: fundo branco, Inter, `text-ink/muted/subtle`, `border-line`, `bg-brand-tint` para active, pílulas para CTAs, números bold grandes, density alta.
+
+---
+
+## Sessão 2026-05-26 — ajustes funcionais (validados localmente, NÃO deployados ainda)
+
+Aplicadas em local mas **ainda não commitadas/pushed**. Paulo pediu para validar com mais alterações antes do deploy oficial. Ao retomar, revisar com ele antes de qualquer `git push`:
+
+1. **`+ Novo Processo` saiu do TopBar** — botão agora vive no header da `KanbanBoard` (search bar, à direita), gated por `role?.canCreate`. `TopBar.jsx` não importa mais `Plus` nem chama `openForm`.
+2. **Risk Shield "Importar Dados" virou admin-only** — `SupplierRiskShield.jsx` filtra `SUBNAV_ALL` por `currentUser?.role === 'admin'` e o conteúdo cai no `RiskDashboard` para não-admins mesmo se o `active` estiver em `'importar'`.
+3. **Faixa vermelha "Em testes, números fictícios"** — adicionada em `KanbanBoard` (sempre) e em `AnalyticsHub` (só quando `active === 'kanban'`, não na "Análise de Categoria"). Padrão de banner descrito na seção "Convenções importantes".
+
+Arquivos tocados: `src/components/layout/TopBar.jsx`, `src/components/kanban/KanbanBoard.jsx`, `src/pages/SupplierRiskShield.jsx`, `src/pages/AnalyticsHub.jsx`.
+
+Build local OK (`npm run build` passou — só warning de chunk size, esperado).

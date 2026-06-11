@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Search, X } from 'lucide-react'
+import { Search, X, Plus } from 'lucide-react'
 import { COLUMN_DEFS } from '../../constants/columns.js'
 import { KanbanColumn } from './KanbanColumn.jsx'
 import { canUserApproveColumn } from '../../algorithms/approvalRouter.js'
@@ -75,6 +75,11 @@ export function KanbanBoard() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
+      {/* Banner: ambiente de testes */}
+      <div className="flex-shrink-0 bg-red-600 text-white text-center text-xs font-semibold py-1.5 tracking-wide">
+        Em testes, números fictícios
+      </div>
+
       {/* Search bar */}
       <div className="flex items-center gap-3 px-4 py-2.5 bg-white border-b border-gray-200 flex-shrink-0">
         <div className="relative flex-1 max-w-sm">
@@ -114,6 +119,16 @@ export function KanbanBoard() {
           )}
         </div>
         <p className="text-xs text-gray-400">{cards.length} processo{cards.length !== 1 ? 's' : ''}</p>
+
+        {role?.canCreate && (
+          <button
+            onClick={() => openForm()}
+            className="ml-auto flex items-center gap-1.5 h-9 px-3.5 rounded-full text-xs font-semibold text-white bg-brand hover:bg-brand-hover transition-all active:scale-[0.98]"
+          >
+            <Plus size={14} strokeWidth={2.5} />
+            <span className="hidden md:inline">Novo Processo</span>
+          </button>
+        )}
       </div>
 
     <div className="flex gap-3 flex-1 overflow-x-auto pb-4 px-1 pt-1">

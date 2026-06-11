@@ -71,7 +71,7 @@ export function Help() {
 
       {/* Main flow */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-        <h3 className="font-semibold text-gray-800 mb-6">Fluxo Geral de Procurement</h3>
+        <h3 className="font-semibold text-gray-800 mb-6">Fluxo Geral de Compras</h3>
 
         {/* Step 1-3 horizontal */}
         <div className="flex items-center gap-3 flex-wrap mb-6">
