@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Plus, Edit2, Trash2, AlertTriangle, TrendingDown, Info,
+import { X, Plus, Edit2, Trash2,
          Package, ChevronRight } from 'lucide-react'
 import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts'
 import useRaioXStore from '../store/useRaioXStore.js'
@@ -158,14 +158,6 @@ function Drawer({ pkg, indicadoresData, onClose, onEdit }) {
   const { linhasCalc, totalPeso, variacaoBase, variacaoFinal } =
     calcularBreakdown(pkg.linhas, indicadoresData, pkg.margem)
 
-  const precoFornecedor = parseFloat(pkg.precoFornecedor)
-  const gap = !isNaN(precoFornecedor) ? precoFornecedor - variacaoFinal : null
-  const insight = gap === null ? null
-    : Math.abs(gap) < 0.5 ? 'O fornecedor está alinhado com a cesta de indicadores ponderada.'
-    : gap > 0
-      ? `Atenção: O fornecedor está reajustando ${gap.toFixed(2)}% acima da cesta de indicadores ponderada.`
-      : `Positivo: O fornecedor está oferecendo ${Math.abs(gap).toFixed(2)}% abaixo da cesta de indicadores ponderada.`
-
   return (
     <>
       {/* Backdrop */}
@@ -299,58 +291,6 @@ function Drawer({ pkg, indicadoresData, onClose, onEdit }) {
             </div>
           </div>
 
-          {/* Should Cost */}
-          {(pkg.precoFornecedor !== '' && pkg.precoFornecedor !== undefined) && (
-            <div className="px-6 pb-6">
-              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">
-                Should Cost · Comparação
-              </p>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="bg-gray-50 rounded-xl p-3 text-center">
-                  <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Mercado</p>
-                  <p className="text-lg font-black" style={{ color: BADGE_COLOR(variacaoFinal) }}>
-                    {fmtPct(variacaoFinal)}
-                  </p>
-                  <p className="text-[9px] text-gray-400 mt-0.5">Cesta ponderada</p>
-                </div>
-                <div className="bg-blue-50 rounded-xl p-3 text-center border border-blue-100">
-                  <p className="text-[10px] text-blue-500 uppercase tracking-wide mb-1">Fornecedor</p>
-                  <p className="text-lg font-black text-blue-700">
-                    {fmtPct(parseFloat(pkg.precoFornecedor) || 0)}
-                  </p>
-                  <p className="text-[9px] text-gray-400 mt-0.5">Reajuste proposto</p>
-                </div>
-                <div className="rounded-xl p-3 text-center"
-                  style={{
-                    background: gap === null ? 'rgba(107,114,128,0.06)' : BADGE_BG(gap * -1),
-                    border: `1px solid ${gap === null ? 'transparent' : BADGE_COLOR(gap * -1) + '33'}`,
-                  }}>
-                  <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">GAP</p>
-                  <p className="text-lg font-black"
-                    style={{ color: gap === null ? '#9ca3af' : BADGE_COLOR(gap * -1) }}>
-                    {gap === null ? '—' : fmtPct(gap)}
-                  </p>
-                  <p className="text-[9px] text-gray-400 mt-0.5">Forn. − Mercado</p>
-                </div>
-              </div>
-
-              {insight && (
-                <div className={`flex items-start gap-2.5 rounded-xl px-3 py-2.5 text-xs mt-3 ${
-                  gap > 0.5 ? 'bg-red-50 border border-red-200 text-red-700' :
-                  gap < -0.5 ? 'bg-emerald-50 border border-emerald-200 text-emerald-700' :
-                  'bg-gray-50 border border-gray-200 text-gray-600'
-                }`}>
-                  {gap > 0.5
-                    ? <AlertTriangle size={13} className="flex-shrink-0 mt-0.5" />
-                    : gap < -0.5
-                      ? <TrendingDown size={13} className="flex-shrink-0 mt-0.5" />
-                      : <Info size={13} className="flex-shrink-0 mt-0.5" />
-                  }
-                  <span className="leading-relaxed">{insight}</span>
-                </div>
-              )}
-            </div>
-          )}
         </div>
       </aside>
     </>

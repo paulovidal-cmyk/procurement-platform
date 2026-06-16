@@ -57,7 +57,7 @@ const useProdutividadeStore = create(
       }),
     }),
     {
-      name: 'produtividade-store-v1',
+      name: 'produtividade-store-v2',
       // Não persiste o seed grande (5.913 linhas) no localStorage: só guarda
       // `rows` quando o admin importou uma base custom. Sem custom data, o seed
       // é re-parseado do CSV embutido a cada carga.

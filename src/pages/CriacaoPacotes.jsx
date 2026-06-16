@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
-import { Plus, Trash2, Save, RefreshCw, AlertTriangle, CheckCircle,
-         ToggleLeft, ToggleRight, TrendingUp, TrendingDown, Info } from 'lucide-react'
+import { Plus, Trash2, Save, RefreshCw, CheckCircle,
+         ToggleLeft, ToggleRight, TrendingUp } from 'lucide-react'
 import useRaioXStore, { EMPTY_LINHA, EMPTY_PACOTE } from '../store/useRaioXStore.js'
 import { calcularBreakdown, fmtPct } from '../algorithms/raiox.js'
 import { INDICADOR_LABELS } from '../data/mockIndicadores.js'
@@ -30,15 +30,6 @@ export function CriacaoPacotes({ initialPkg, onSaved }) {
   )
 
   const pesoOk = Math.abs(totalPeso - 100) < 0.01
-
-  // Should Cost
-  const precoFornecedor = parseFloat(form.precoFornecedor)
-  const gap = !isNaN(precoFornecedor) ? precoFornecedor - variacaoFinal : null
-  const insight = gap === null ? null
-    : Math.abs(gap) < 0.5 ? 'O fornecedor está alinhado com a cesta de indicadores ponderada.'
-    : gap > 0
-      ? `Atenção: O fornecedor está reajustando ${gap.toFixed(2)}% acima da cesta de indicadores ponderada.`
-      : `Positivo: O fornecedor está oferecendo ${Math.abs(gap).toFixed(2)}% abaixo da cesta de indicadores ponderada.`
 
   // ── Helpers ──────────────────────────────────────────────────────
   const setField = (k, v) => setForm(f => ({ ...f, [k]: v }))
@@ -72,7 +63,7 @@ export function CriacaoPacotes({ initialPkg, onSaved }) {
                 {titulo}
               </h2>
               <p className="text-xs mt-0.5" style={{ color: 'rgba(13,49,37,0.4)' }}>
-                Cost Breakdown · Should Cost Analysis
+                Cost Breakdown
               </p>
             </div>
             <button
@@ -263,7 +254,7 @@ export function CriacaoPacotes({ initialPkg, onSaved }) {
         </div>
 
         {/* ── Rodapé / Cálculo Final ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
 
           {/* Ajuste de Negociação */}
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-4">
@@ -301,58 +292,6 @@ export function CriacaoPacotes({ initialPkg, onSaved }) {
                 </p>
               </div>
             </div>
-          </div>
-
-          {/* Should Cost */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-4">
-            <h3 className="text-sm font-semibold text-gray-800">Should Cost · Comparação</h3>
-
-            <div className="grid grid-cols-3 gap-3">
-              <div className="bg-gray-50 rounded-xl p-3 text-center">
-                <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Mercado</p>
-                <p className={`text-lg font-black ${BADGE(variacaoFinal)}`}>{fmtPct(variacaoFinal)}</p>
-                <p className="text-[10px] text-gray-400 mt-0.5">Cesta ponderada</p>
-              </div>
-
-              <div className="rounded-xl p-3 border-2 border-dashed border-blue-200">
-                <p className="text-[10px] text-blue-500 uppercase tracking-wide mb-1 text-center">Fornecedor</p>
-                <div className="flex items-center justify-center gap-1">
-                  <input
-                    type="number" step="0.5"
-                    value={form.precoFornecedor}
-                    onChange={e => setField('precoFornecedor', e.target.value)}
-                    className="w-16 text-center text-sm font-semibold border border-blue-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                    placeholder="0"
-                  />
-                  <span className="text-sm text-gray-500">%</span>
-                </div>
-                <p className="text-[10px] text-gray-400 mt-1 text-center">Reajuste proposto</p>
-              </div>
-
-              <div className={`rounded-xl p-3 text-center ${gap === null ? 'bg-gray-50' :
-                gap > 0.5 ? 'bg-red-50 border border-red-200' :
-                gap < -0.5 ? 'bg-emerald-50 border border-emerald-200' :
-                'bg-gray-50 border border-gray-200'}`}>
-                <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">GAP</p>
-                <p className={`text-lg font-black ${gap === null ? 'text-gray-300' : BADGE(gap * -1)}`}>
-                  {gap === null ? '—' : fmtPct(gap)}
-                </p>
-                <p className="text-[10px] text-gray-400 mt-0.5">Fornecedor − Mercado</p>
-              </div>
-            </div>
-
-            {insight && (
-              <div className={`flex items-start gap-2.5 rounded-xl px-3 py-2.5 text-xs ${
-                gap > 0.5 ? 'bg-red-50 border border-red-200 text-red-700' :
-                gap < -0.5 ? 'bg-emerald-50 border border-emerald-200 text-emerald-700' :
-                'bg-gray-50 border border-gray-200 text-gray-600'
-              }`}>
-                {gap > 0.5 ? <AlertTriangle size={14} className="flex-shrink-0 mt-0.5" /> :
-                 gap < -0.5 ? <TrendingDown size={14} className="flex-shrink-0 mt-0.5" /> :
-                 <Info size={14} className="flex-shrink-0 mt-0.5" />}
-                <span className="leading-relaxed">{insight}</span>
-              </div>
-            )}
           </div>
         </div>
 

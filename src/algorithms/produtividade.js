@@ -18,6 +18,7 @@ export const YEARS = [2024, 2025, 2026]
 /** Colunas exatas da planilha → campo interno. */
 export const COLUMN_MAP = {
   'Data': 'data',
+  'Escopo de Compras': 'escopoCompras',
   'Pedido': 'pedido',
   'Filtro Logística': 'filtroLog',
   'Contrato/Spot': 'contratoSpot',
@@ -35,7 +36,7 @@ export const COLUMN_MAP = {
 
 /** Campos de filtro que restringem APENAS o numerador (pedidos/spend). */
 export const NUMERATOR_FILTER_FIELDS = [
-  'filtroLog', 'contratoSpot', 'tipoNeg', 'tipoPedido',
+  'escopoCompras', 'filtroLog', 'contratoSpot', 'tipoNeg', 'tipoPedido',
   'fornecedor', 'categoria', 'subcategoria',
 ]
 /** Campos de filtro que afetam numerador E denominador (headcount). */
@@ -96,6 +97,7 @@ export function normalizeRow(raw) {
     year: data ? data.getUTCFullYear() : null,
     month: data ? data.getUTCMonth() + 1 : null,
     pedido: str(get('Pedido')),
+    escopoCompras: str(get('Escopo de Compras')),
     filtroLog: str(get('Filtro Logística')),
     contratoSpot: str(get('Contrato/Spot')),
     tipoNeg: str(get('Tipo de Negociação')),
@@ -148,6 +150,23 @@ export function isActive(c, start, end) {
 
 export function activeHeadcount(compradores, start, end) {
   return compradores.filter(c => isActive(c, start, end)).length
+}
+
+/**
+ * Headcount MÉDIO do período: média dos headcounts ativos mês a mês.
+ * Reflete entradas/saídas ao longo do ano (quem entra/sai pesa proporcionalmente
+ * aos meses em que esteve ativo). FY → divide por 12; YTD → pelos meses até o corte.
+ * É o denominador de pedidos/comprador e spend/comprador.
+ */
+export function avgMonthlyHeadcount(compradores, year, mode, cutoff) {
+  const maxMonth = mode === 'ytd' && cutoff ? cutoff.month : 12
+  if (maxMonth <= 0) return 0
+  let sum = 0
+  for (let m = 1; m <= maxMonth; m++) {
+    const { start, end } = monthWindow(year, m)
+    sum += activeHeadcount(compradores, start, end)
+  }
+  return sum / maxMonth
 }
 
 // ─── Contagem base ──────────────────────────────────────────────────────────────
@@ -228,9 +247,10 @@ export function computeYearKPIs(rows, compradores, year, mode, cutoff, filters =
     matchRow(r, filters)
   )
 
-  // Denominador: compradores filtrados por Comprador/Cargo, ativos na janela.
+  // Denominador: compradores filtrados por Comprador/Cargo. Headcount = média
+  // mensal de ativos no período (pondera entradas/saídas ao longo do ano).
   const elegiveis = compradores.filter(c => matchComprador(c, filters))
-  const headcount = activeHeadcount(elegiveis, start, end)
+  const headcount = avgMonthlyHeadcount(elegiveis, year, mode, cutoff)
 
   const pedidos = distinctPedidos(num)
   const spendTotal = sumSpend(num)
@@ -337,7 +357,7 @@ export function computeBySpotContrato(rows, compradores, mode, cutoff, filters =
         r.data.getTime() <= end.getTime() &&
         matchRow(r, filters)
       )
-      const headcount = activeHeadcount(elegiveis, start, end)
+      const headcount = avgMonthlyHeadcount(elegiveis, year, mode, cutoff)
       const pedidos = distinctPedidos(num)
       const spendTotal = sumSpend(num)
       byYear[year] = {
@@ -349,6 +369,39 @@ export function computeBySpotContrato(rows, compradores, mode, cutoff, filters =
     return { key, byYear }
   })
   return { groups }
+}
+
+// ─── Abertura por Escopo de Compras ─────────────────────────────────────────────
+
+/**
+ * Pedidos e pedidos/comprador por Escopo de Compras (dentro/fora), por ano.
+ * Headcount (denominador) é o do ano — o mesmo para todos os escopos. As chaves
+ * vêm dos valores presentes após os filtros ativos. Usado no gráfico empilhado.
+ * @returns { keys: string[], byYear: { [year]: { [escopo]: { pedidos, pedidosPorComprador } } } }
+ */
+export function computeByEscopo(rows, compradores, mode, cutoff, filters = {}, years = YEARS) {
+  const elegiveis = compradores.filter(c => matchComprador(c, filters))
+  const keys = [...new Set(rows.filter(r => matchRow(r, filters)).map(r => r.escopoCompras).filter(Boolean))]
+    .sort((a, b) => String(a).localeCompare(String(b), 'pt-BR', { sensitivity: 'base' }))
+
+  const byYear = {}
+  for (const year of years) {
+    const { start, end } = periodWindow(year, mode, cutoff)
+    const headcount = avgMonthlyHeadcount(elegiveis, year, mode, cutoff)
+    byYear[year] = {}
+    for (const key of keys) {
+      const num = rows.filter(r =>
+        r.escopoCompras === key &&
+        r.data &&
+        r.data.getTime() >= start.getTime() &&
+        r.data.getTime() <= end.getTime() &&
+        matchRow(r, filters)
+      )
+      const pedidos = distinctPedidos(num)
+      byYear[year][key] = { pedidos, pedidosPorComprador: headcount ? pedidos / headcount : 0 }
+    }
+  }
+  return { keys, byYear }
 }
 
 // ─── Opções de filtro ──────────────────────────────────────────────────────────
@@ -410,29 +463,24 @@ export function buildAnalysis({ perYear, byComprador, spotContrato, years = YEAR
   if (prev) {
     const hc = perYear[last].headcount
     const hp = perYear[prev].headcount
-    if (hc !== hp) {
+    if (Math.abs(hc - hp) >= 0.05) {
       const diff = hc - hp
       const dir = diff > 0 ? 'aumento' : 'redução'
       bullets.push(
-        `Headcount ativo teve ${dir} de ${Math.abs(diff)} comprador(es) (${hp} → ${hc}), o que ${diff > 0 ? 'dilui' : 'concentra'} o indicador por comprador.`
+        `Headcount médio teve ${dir} de ${fmtNum(Math.abs(diff), 1)} comprador(es) (${fmtNum(hp, 1)} → ${fmtNum(hc, 1)}), o que ${diff > 0 ? 'dilui' : 'concentra'} o indicador por comprador.`
       )
     } else {
-      bullets.push(`Headcount estável (${hc} compradores) entre ${prev} e ${last} — variação reflete volume, não time.`)
+      bullets.push(`Headcount médio estável (${fmtNum(hc, 1)} compradores) entre ${prev} e ${last} — variação reflete volume, não time.`)
     }
   }
 
-  // 3. Divergência entre esforço (volume) e valor (spend → ticket médio)
+  // 3. Volume de pedidos ano a ano (esforço total)
   if (prev) {
-    const tLast = perYear[last].pedidos ? perYear[last].spendTotal / perYear[last].pedidos : 0
-    const tPrev = perYear[prev].pedidos ? perYear[prev].spendTotal / perYear[prev].pedidos : 0
     const volCh = pctChange(perYear[last].pedidos, perYear[prev].pedidos)
-    const tickCh = pctChange(tLast, tPrev)
-    if (volCh != null && tickCh != null && Math.sign(volCh) !== Math.sign(tickCh)) {
+    if (volCh != null) {
       bullets.push(
-        `Esforço e valor divergem: volume de pedidos ${volCh >= 0 ? 'subiu' : 'caiu'} ${fmtNum(Math.abs(volCh), 1)}% enquanto o ticket médio ${tickCh >= 0 ? 'subiu' : 'caiu'} ${fmtNum(Math.abs(tickCh), 1)}% (ticket ${last}: ${fmtBRL(tLast)}).`
+        `Volume de pedidos ${volCh >= 0 ? 'subiu' : 'caiu'} ${fmtNum(Math.abs(volCh), 1)}% de ${prev} (${fmtNum(perYear[prev].pedidos)}) para ${last} (${fmtNum(perYear[last].pedidos)} pedidos distintos).`
       )
-    } else {
-      bullets.push(`Ticket médio em ${last}: ${fmtBRL(tLast)} por pedido (${fmtBRL(perYear[last].spendTotal)} em ${fmtNum(perYear[last].pedidos)} pedidos).`)
     }
   }
 
@@ -495,7 +543,8 @@ export function computeDashboard(rows, { mode = 'fy', filters = {}, years = YEAR
   const monthly = computeMonthlySeries(rows, compradores, mode, cutoff, filters, years)
   const byComprador = computeByComprador(rows, compradores, mode, cutoff, filters, years)
   const spotContrato = computeBySpotContrato(rows, compradores, mode, cutoff, filters, years)
+  const byEscopo = computeByEscopo(rows, compradores, mode, cutoff, filters, years)
   const analysis = buildAnalysis({ perYear, byComprador, spotContrato, years, mode })
 
-  return { cutoff, years, perYear, monthly, byComprador, spotContrato, analysis }
+  return { cutoff, years, perYear, monthly, byComprador, spotContrato, byEscopo, analysis }
 }

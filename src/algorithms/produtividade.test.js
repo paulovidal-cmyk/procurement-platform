@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   parseDate, cleanSpend, normalizeRow, normalizeRows,
-  deriveCompradores, isActive, activeHeadcount,
+  deriveCompradores, isActive, activeHeadcount, avgMonthlyHeadcount,
   distinctPedidos, sumSpend, getYtdCutoff, periodWindow,
   computeYearKPIs, computeMonthlySeries, matchRow, matchComprador,
 } from './produtividade.js'
@@ -117,6 +117,28 @@ describe('isActive / activeHeadcount (admissão e saída)', () => {
       { admissao: D(2020, 1, 1), saida: D(2025, 3, 1) }, // saiu no período → conta
     ]
     expect(activeHeadcount(comps, start, end)).toBe(2)
+  })
+})
+
+describe('avgMonthlyHeadcount (média mensal ponderada por entradas/saídas)', () => {
+  it('full year: ativo o ano todo = 1; quem entra em out pesa 3/12', () => {
+    const comps = [
+      { admissao: D(2024, 1, 1), saida: null },   // ativo Jan..Dez → 12 meses
+      { admissao: D(2024, 10, 1), saida: null },  // ativo Out..Dez → 3 meses
+    ]
+    // (12 + 3) / 12 = 1.25
+    expect(avgMonthlyHeadcount(comps, 2024, 'fy', null)).toBeCloseTo(1.25, 5)
+  })
+  it('quando todos estão ativos o ano inteiro, média = contagem simples', () => {
+    const comps = [
+      { admissao: D(2020, 1, 1), saida: null },
+      { admissao: D(2019, 6, 1), saida: null },
+    ]
+    expect(avgMonthlyHeadcount(comps, 2025, 'fy', null)).toBe(2)
+  })
+  it('YTD divide pelos meses até o corte', () => {
+    const comps = [{ admissao: D(2020, 1, 1), saida: null }] // ativo sempre
+    expect(avgMonthlyHeadcount(comps, 2025, 'ytd', { month: 5, day: 22 })).toBe(1)
   })
 })
 

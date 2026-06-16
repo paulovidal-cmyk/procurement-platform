@@ -17,9 +17,11 @@ export const REQUIRED_COLS = [
   'Comprador', 'Cargo', 'data_admissao',
 ]
 /** Colunas opcionais reconhecidas (não bloqueiam o upload se ausentes). */
-export const OPTIONAL_COLS = ['Filtro Logística', 'Tipo de Negociação', 'data_saida']
+export const OPTIONAL_COLS = ['Escopo de Compras', 'Filtro Logística', 'Tipo de Negociação', 'data_saida']
 
-const KNOWN_COLS = new Set([...Object.keys(COLUMN_MAP), 'Ano', 'comprador'])
+// 'comprador' e 'nome comprador' são a coluna de nome cru (varia entre versões da
+// planilha); 'Comprador' (chave) é a usada nos cálculos. 'Ano' é derivado da Data.
+const KNOWN_COLS = new Set([...Object.keys(COLUMN_MAP), 'Ano', 'comprador', 'nome comprador'])
 
 /** Gating de role — client-side. Só admin pode atualizar a base. */
 export function canManageProdutividade(user) {

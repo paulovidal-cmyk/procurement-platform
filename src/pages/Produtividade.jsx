@@ -1,11 +1,11 @@
 import { useState, useMemo, useRef, useEffect, Fragment } from 'react'
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Legend, LabelList, Cell,
+  ResponsiveContainer, Legend, LabelList,
 } from 'recharts'
 import {
   Calendar, Filter, X, Search, ChevronDown, Users, Package,
-  TrendingUp, DollarSign, Sparkles, Info, Database,
+  TrendingUp, Sparkles, Info, Database,
 } from 'lucide-react'
 import useProdutividadeStore from '../store/useProdutividadeStore.js'
 import {
@@ -15,23 +15,18 @@ import {
 
 const BRAND = '#00D26A'
 const YEAR_COLORS = { 2024: '#9aa6a2', 2025: '#00B85B', 2026: '#00D26A' }
+// Segmentos do gráfico empilhado por Escopo de Compras
+const ESCOPO_COLORS = { 'Compras': '#00D26A', 'Fora do Escopo': '#9aa6a2' }
+const escopoColor = (k, i) => ESCOPO_COLORS[k] || (i % 2 ? '#C2EAC9' : '#5B6B66')
 
 // ─── Formatadores ───────────────────────────────────────────────────────────
-function fmtBRL(v) {
-  if (v == null || isNaN(v)) return '—'
-  const a = Math.abs(v)
-  if (a >= 1e9) return `R$ ${(v / 1e9).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} bi`
-  if (a >= 1e6) return `R$ ${(v / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} mi`
-  if (a >= 1e3) return `R$ ${(v / 1e3).toLocaleString('pt-BR', { maximumFractionDigits: 0 })} mil`
-  return `R$ ${Math.round(v).toLocaleString('pt-BR')}`
-}
 const fmtInt = (v) => (v == null || isNaN(v) ? '—' : Math.round(v).toLocaleString('pt-BR'))
 const fmtDec = (v, d = 1) => (v == null || isNaN(v) ? '—' : v.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d }))
 
 const FILTER_LABELS = {
-  filtroLog: 'Filtro Logística', contratoSpot: 'Contrato/Spot', tipoNeg: 'Tipo de Negociação',
-  tipoPedido: 'Tipo de Pedido', fornecedor: 'Fornecedor', categoria: 'Categoria',
-  subcategoria: 'Subcategoria', comprador: 'Comprador', cargo: 'Cargo',
+  escopoCompras: 'Escopo de Compras', filtroLog: 'Filtro Logística', contratoSpot: 'Contrato/Spot',
+  tipoNeg: 'Tipo de Negociação', tipoPedido: 'Tipo de Pedido', fornecedor: 'Fornecedor',
+  categoria: 'Categoria', subcategoria: 'Subcategoria', comprador: 'Comprador', cargo: 'Cargo',
 }
 const FILTER_ORDER = [...NUMERATOR_FILTER_FIELDS, ...HEADCOUNT_FILTER_FIELDS]
 
@@ -129,10 +124,8 @@ function YearCard({ k }) {
   if (!k) return null
   const rows = [
     { label: 'Pedidos (distintos)', value: fmtInt(k.pedidos), icon: Package },
-    { label: 'Compradores (ativos)', value: fmtInt(k.headcount), icon: Users },
+    { label: 'Headcount médio', value: fmtDec(k.headcount, 1), icon: Users },
     { label: 'Pedidos / comprador', value: fmtDec(k.pedidosPorComprador, 1), icon: TrendingUp, hi: true },
-    { label: 'Spend / comprador', value: fmtBRL(k.spendPorComprador), icon: DollarSign, hi: true },
-    { label: 'Spend total', value: fmtBRL(k.spendTotal), icon: DollarSign },
   ]
   return (
     <div className="bg-white rounded-2xl border p-4" style={{ borderColor: 'rgba(13,49,37,0.1)' }}>
@@ -188,11 +181,65 @@ function ChartCard({ title, subtitle, children, right }) {
   )
 }
 
+// ─── Hero do indicador-foco: Pedidos / comprador ─────────────────────────────
+function HeroPedidos({ perYear, years, mode }) {
+  const present = years.filter(y => perYear[y] && perYear[y].headcount > 0)
+  if (!present.length) return null
+  const last = present[present.length - 1]
+  const prev = present.length >= 2 ? present[present.length - 2] : null
+  const lastK = perYear[last]
+  const prevVal = prev ? perYear[prev].pedidosPorComprador : null
+  const delta = prevVal ? ((lastK.pedidosPorComprador - prevVal) / prevVal) * 100 : null
+  const up = delta != null && delta >= 0
+  const maxVal = Math.max(...present.map(y => perYear[y].pedidosPorComprador || 0), 1)
+
+  return (
+    <div className="rounded-3xl border p-5 sm:p-6"
+      style={{ borderColor: 'rgba(13,49,37,0.1)', background: 'linear-gradient(135deg, #ffffff 0%, #eefaf2 100%)' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(220px,300px)_1fr] gap-6 items-center">
+        {/* Foco: ano mais recente */}
+        <div>
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'rgba(13,49,37,0.5)' }}>
+            <TrendingUp size={13} style={{ color: BRAND }} /> Pedidos / comprador · {last}
+          </div>
+          <div className="flex items-end gap-3 mt-1.5">
+            <span className="text-[52px] leading-none font-black tabular-nums tracking-tight" style={{ color: '#0D3125' }}>
+              {fmtDec(lastK.pedidosPorComprador, 1)}
+            </span>
+            {delta != null && (
+              <span className="mb-2 inline-flex items-center gap-0.5 text-xs font-bold px-2 py-0.5 rounded-full"
+                style={{ background: up ? 'rgba(0,210,106,0.14)' : 'rgba(239,68,68,0.1)', color: up ? '#00B85B' : '#ef4444' }}>
+                {up ? '▲' : '▼'} {fmtDec(Math.abs(delta), 1)}% vs {prev}
+              </span>
+            )}
+          </div>
+          <p className="text-[11px] mt-2.5" style={{ color: 'rgba(13,49,37,0.5)' }}>
+            {fmtInt(lastK.pedidos)} pedidos ÷ {fmtDec(lastK.headcount, 1)} compradores
+            {' '}(média {mode === 'ytd' ? 'YTD' : 'no ano'}, ponderada por entradas/saídas)
+          </p>
+        </div>
+        {/* Comparativo por ano */}
+        <div className="flex items-end justify-around gap-4 border-l pl-6" style={{ borderColor: 'rgba(13,49,37,0.08)', minHeight: 150 }}>
+          {present.map(y => {
+            const v = perYear[y].pedidosPorComprador || 0
+            const h = Math.max(10, (v / maxVal) * 116)
+            return (
+              <div key={y} className="flex flex-col items-center gap-1.5 flex-1 justify-end">
+                <span className="text-lg font-extrabold tabular-nums" style={{ color: '#0D3125' }}>{fmtDec(v, 1)}</span>
+                <div className="w-full max-w-[56px] rounded-t-lg transition-all" style={{ height: h, background: YEAR_COLORS[y] || BRAND }} />
+                <span className="text-[11px] font-bold" style={{ color: 'rgba(13,49,37,0.55)' }}>{y}</span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const METRICS = [
   { id: 'pedidosPorComprador', label: 'Pedidos / comprador', fmt: (v) => fmtDec(v, 1) },
-  { id: 'spendPorComprador', label: 'Spend / comprador', fmt: fmtBRL },
   { id: 'pedidos', label: 'Pedidos (total)', fmt: fmtInt },
-  { id: 'spendTotal', label: 'Spend (total)', fmt: fmtBRL },
 ]
 
 // ─── Página ─────────────────────────────────────────────────────────────────
@@ -201,12 +248,18 @@ export function Produtividade() {
   const [mode, setMode] = useState('fy')           // 'fy' | 'ytd'
   const [filters, setFilters] = useState({})
   const [monthlyMetric, setMonthlyMetric] = useState('pedidosPorComprador')
+  const [selectedYears, setSelectedYears] = useState(YEARS)
+
+  const years = useMemo(() => YEARS.filter(y => selectedYears.includes(y)), [selectedYears])
+  const toggleYear = (y) => setSelectedYears(prev =>
+    prev.includes(y)
+      ? (prev.length > 1 ? prev.filter(v => v !== y) : prev)  // mantém ao menos 1
+      : [...prev, y].sort((a, b) => a - b)
+  )
 
   const normalized = useMemo(() => normalizeRows(rawRows), [rawRows])
   const options = useMemo(() => buildFilterOptions(normalized), [normalized])
-  const dash = useMemo(() => computeDashboard(normalized, { mode, filters }), [normalized, mode, filters])
-
-  const years = YEARS
+  const dash = useMemo(() => computeDashboard(normalized, { mode, filters, years }), [normalized, mode, filters, years])
   const cutoffLabel = dash.cutoff
     ? `${String(dash.cutoff.day).padStart(2, '0')}/${String(dash.cutoff.month).padStart(2, '0')}`
     : '—'
@@ -214,6 +267,20 @@ export function Produtividade() {
 
   const setField = (field, vals) => setFilters(f => ({ ...f, [field]: vals }))
   const clearFilters = () => setFilters({})
+
+  // Dados do gráfico empilhado: pedidos/comprador por ano, segmentado por Escopo.
+  const escopoKeys = dash.byEscopo?.keys || []
+  const escopoData = years.map(y => {
+    const row = { year: String(y) }
+    let total = 0
+    for (const k of escopoKeys) {
+      const v = dash.byEscopo.byYear[y]?.[k]?.pedidosPorComprador || 0
+      row[k] = v
+      total += v
+    }
+    row.__total = total
+    return row
+  })
 
   if (!normalized.length) {
     return (
@@ -240,24 +307,44 @@ export function Produtividade() {
           <div>
             <h1 className="text-xl font-black" style={{ color: '#0D3125' }}>Produtividade</h1>
             <p className="text-xs mt-0.5" style={{ color: 'rgba(13,49,37,0.5)' }}>
-              Esforço do comprador na emissão de pedidos — pedidos e spend por comprador
+              Esforço do comprador na emissão de pedidos — pedidos por comprador
             </p>
           </div>
-          <div className="flex items-center gap-1 bg-white rounded-full border p-1" style={{ borderColor: 'rgba(13,49,37,0.1)' }}>
-            {[
-              { id: 'fy', label: 'Full Year' },
-              { id: 'ytd', label: `YTD até ${cutoffLabel}` },
-            ].map(b => (
-              <button key={b.id} onClick={() => setMode(b.id)}
-                aria-pressed={mode === b.id}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
-                style={{
-                  background: mode === b.id ? BRAND : 'transparent',
-                  color: mode === b.id ? 'white' : 'rgba(13,49,37,0.6)',
-                }}>
-                <Calendar size={12} /> {b.label}
-              </button>
-            ))}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Filtro de Ano */}
+            <div className="flex items-center gap-1 bg-white rounded-full border p-1" style={{ borderColor: 'rgba(13,49,37,0.1)' }}>
+              {YEARS.map(y => {
+                const on = selectedYears.includes(y)
+                return (
+                  <button key={y} onClick={() => toggleYear(y)}
+                    aria-pressed={on}
+                    className="px-2.5 py-1.5 rounded-full text-xs font-bold tabular-nums transition-all"
+                    style={{
+                      background: on ? (YEAR_COLORS[y] || BRAND) : 'transparent',
+                      color: on ? 'white' : 'rgba(13,49,37,0.45)',
+                    }}>
+                    {y}
+                  </button>
+                )
+              })}
+            </div>
+            {/* Toggle de período */}
+            <div className="flex items-center gap-1 bg-white rounded-full border p-1" style={{ borderColor: 'rgba(13,49,37,0.1)' }}>
+              {[
+                { id: 'fy', label: 'Full Year' },
+                { id: 'ytd', label: `YTD até ${cutoffLabel}` },
+              ].map(b => (
+                <button key={b.id} onClick={() => setMode(b.id)}
+                  aria-pressed={mode === b.id}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                  style={{
+                    background: mode === b.id ? BRAND : 'transparent',
+                    color: mode === b.id ? 'white' : 'rgba(13,49,37,0.6)',
+                  }}>
+                  <Calendar size={12} /> {b.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -284,11 +371,14 @@ export function Produtividade() {
             )}
           </div>
           <p className="text-[10px] mt-2" style={{ color: 'rgba(13,49,37,0.4)' }}>
-            ⊙ Comprador e Cargo afetam também o headcount (denominador). Os demais filtram só pedidos e spend.
+            ⊙ Comprador e Cargo afetam também o headcount (denominador). Os demais filtram só os pedidos.
           </p>
         </div>
 
-        {/* KPI cards por ano */}
+        {/* Hero: indicador-foco Pedidos / comprador */}
+        <HeroPedidos perYear={dash.perYear} years={years} mode={mode} />
+
+        {/* KPI cards por ano (detalhe) */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {years.map(y => <YearCard key={y} k={dash.perYear[y]} />)}
         </div>
@@ -311,38 +401,36 @@ export function Produtividade() {
           </p>
         </div>
 
-        {/* Gráficos comparativos */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-          <ChartCard title="Pedidos por comprador" subtitle="Comparativo entre anos">
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={years.map(y => ({ year: String(y), value: dash.perYear[y]?.pedidosPorComprador || 0 }))}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(13,49,37,0.06)" vertical={false} />
-                <XAxis dataKey="year" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                <Tooltip content={<ChartTooltip fmt={(v) => fmtDec(v, 1)} />} cursor={{ fill: 'rgba(0,210,106,0.05)' }} />
-                <Bar dataKey="value" name="Pedidos/comprador" radius={[6, 6, 0, 0]}>
-                  {years.map(y => <Cell key={y} fill={YEAR_COLORS[y] || BRAND} />)}
-                  <LabelList dataKey="value" position="top" formatter={(v) => fmtDec(v, 1)} style={{ fontSize: 11, fontWeight: 700, fill: '#0D3125' }} />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
-
-          <ChartCard title="Spend por comprador" subtitle="Comparativo entre anos">
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={years.map(y => ({ year: String(y), value: dash.perYear[y]?.spendPorComprador || 0 }))}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(13,49,37,0.06)" vertical={false} />
-                <XAxis dataKey="year" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={fmtBRL} width={70} />
-                <Tooltip content={<ChartTooltip fmt={fmtBRL} />} cursor={{ fill: 'rgba(0,210,106,0.05)' }} />
-                <Bar dataKey="value" name="Spend/comprador" radius={[6, 6, 0, 0]}>
-                  {years.map(y => <Cell key={y} fill={YEAR_COLORS[y] || BRAND} />)}
-                  <LabelList dataKey="value" position="top" formatter={fmtBRL} style={{ fontSize: 10, fontWeight: 700, fill: '#0D3125' }} />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
-        </div>
+        {/* Pedidos/comprador por Escopo de Compras (empilhado) */}
+        <ChartCard
+          title="Pedidos / comprador por Escopo de Compras"
+          subtitle="Empilhado: dentro vs fora do escopo · rótulo do topo = total por comprador">
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={escopoData} margin={{ top: 26 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(13,49,37,0.06)" vertical={false} />
+              <XAxis dataKey="year" tick={{ fontSize: 12, fontWeight: 700 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+              <Tooltip content={<ChartTooltip fmt={(v) => fmtDec(v, 1)} />} cursor={{ fill: 'rgba(0,210,106,0.05)' }} />
+              <Legend wrapperStyle={{ fontSize: 11 }} />
+              {escopoKeys.map((k, i) => {
+                const isLast = i === escopoKeys.length - 1
+                return (
+                  <Bar key={k} dataKey={k} name={k} stackId="esc" fill={escopoColor(k, i)}
+                    radius={isLast ? [6, 6, 0, 0] : [0, 0, 0, 0]}>
+                    <LabelList dataKey={k} position="center"
+                      formatter={(v) => (v >= 0.1 ? fmtDec(v, 1) : '')}
+                      style={{ fontSize: 10, fontWeight: 700, fill: '#ffffff' }} />
+                    {isLast && (
+                      <LabelList dataKey="__total" position="top"
+                        formatter={(v) => fmtDec(v, 1)}
+                        style={{ fontSize: 12, fontWeight: 800, fill: '#0D3125' }} />
+                    )}
+                  </Bar>
+                )
+              })}
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
 
         {/* Série mensal */}
         <ChartCard
@@ -375,23 +463,14 @@ export function Produtividade() {
         </ChartCard>
 
         {/* Abertura por comprador */}
-        <ChartCard title="Abertura por comprador" subtitle="Pedidos e spend por comprador por ano">
+        <ChartCard title="Abertura por comprador" subtitle="Pedidos distintos por comprador por ano">
           <div className="overflow-x-auto -mx-1">
             <table className="w-full text-xs">
               <thead>
                 <tr className="border-b" style={{ borderColor: 'rgba(13,49,37,0.08)' }}>
                   <th className="text-left py-1.5 px-2 text-[10px] uppercase tracking-wider font-semibold text-gray-400">Comprador</th>
                   {years.map(y => (
-                    <th key={y} colSpan={2} className="text-center py-1.5 px-2 text-[10px] uppercase tracking-wider font-semibold text-gray-400">{y}</th>
-                  ))}
-                </tr>
-                <tr className="border-b" style={{ borderColor: 'rgba(13,49,37,0.06)' }}>
-                  <th></th>
-                  {years.map(y => (
-                    <Fragment key={y}>
-                      <th className="text-right py-1 px-2 text-[9px] text-gray-400 font-medium">Pedidos</th>
-                      <th className="text-right py-1 px-2 text-[9px] text-gray-400 font-medium">Spend</th>
-                    </Fragment>
+                    <th key={y} className="text-right py-1.5 px-2 text-[10px] uppercase tracking-wider font-semibold text-gray-400">{y}</th>
                   ))}
                 </tr>
               </thead>
@@ -405,10 +484,7 @@ export function Produtividade() {
                       )}
                     </td>
                     {years.map(y => (
-                      <Fragment key={y}>
-                        <td className="text-right py-1.5 px-2 tabular-nums" style={{ color: 'rgba(13,49,37,0.7)' }}>{fmtInt(c.byYear[y]?.pedidos)}</td>
-                        <td className="text-right py-1.5 px-2 tabular-nums" style={{ color: 'rgba(13,49,37,0.7)' }}>{fmtBRL(c.byYear[y]?.spend)}</td>
-                      </Fragment>
+                      <td key={y} className="text-right py-1.5 px-2 tabular-nums" style={{ color: 'rgba(13,49,37,0.7)' }}>{fmtInt(c.byYear[y]?.pedidos)}</td>
                     ))}
                   </tr>
                 ))}
@@ -417,70 +493,48 @@ export function Produtividade() {
           </div>
         </ChartCard>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-          <ChartCard title="Pedidos por comprador" subtitle="Top emissores (3 anos)">
-            <ResponsiveContainer width="100%" height={Math.max(180, dash.byComprador.slice(0, 12).length * 34)}>
-              <BarChart layout="vertical" data={dash.byComprador.slice(0, 12).map(c => ({
-                name: c.comprador, ...Object.fromEntries(years.map(y => [y, c.byYear[y]?.pedidos || 0])),
-              }))} margin={{ left: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(13,49,37,0.06)" horizontal={false} />
-                <XAxis type="number" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={90} axisLine={false} tickLine={false} />
-                <Tooltip content={<ChartTooltip fmt={fmtInt} />} cursor={{ fill: 'rgba(0,210,106,0.05)' }} />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
-                {years.map(y => <Bar key={y} dataKey={String(y)} name={String(y)} fill={YEAR_COLORS[y] || BRAND} radius={[0, 4, 4, 0]} />)}
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
-
-          <ChartCard title="Spend por comprador" subtitle="Top emissores (3 anos)">
-            <ResponsiveContainer width="100%" height={Math.max(180, dash.byComprador.slice(0, 12).length * 34)}>
-              <BarChart layout="vertical" data={dash.byComprador.slice(0, 12).map(c => ({
-                name: c.comprador, ...Object.fromEntries(years.map(y => [y, c.byYear[y]?.spend || 0])),
-              }))} margin={{ left: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(13,49,37,0.06)" horizontal={false} />
-                <XAxis type="number" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={fmtBRL} />
-                <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={90} axisLine={false} tickLine={false} />
-                <Tooltip content={<ChartTooltip fmt={fmtBRL} />} cursor={{ fill: 'rgba(0,210,106,0.05)' }} />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
-                {years.map(y => <Bar key={y} dataKey={String(y)} name={String(y)} fill={YEAR_COLORS[y] || BRAND} radius={[0, 4, 4, 0]} />)}
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
-        </div>
+        <ChartCard title="Pedidos por comprador" subtitle="Top 12 emissores — pedidos distintos por ano">
+          <ResponsiveContainer width="100%" height={Math.max(200, dash.byComprador.slice(0, 12).length * 38)}>
+            <BarChart layout="vertical" data={dash.byComprador.slice(0, 12).map(c => ({
+              name: c.comprador, ...Object.fromEntries(years.map(y => [y, c.byYear[y]?.pedidos || 0])),
+            }))} margin={{ left: 10, right: 36 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(13,49,37,0.06)" horizontal={false} />
+              <XAxis type="number" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+              <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={94} axisLine={false} tickLine={false} />
+              <Tooltip content={<ChartTooltip fmt={fmtInt} />} cursor={{ fill: 'rgba(0,210,106,0.05)' }} />
+              <Legend wrapperStyle={{ fontSize: 11 }} />
+              {years.map(y => (
+                <Bar key={y} dataKey={String(y)} name={String(y)} fill={YEAR_COLORS[y] || BRAND} radius={[0, 4, 4, 0]}>
+                  <LabelList dataKey={String(y)} position="right"
+                    formatter={(v) => (v > 0 ? fmtInt(v) : '')}
+                    style={{ fontSize: 9, fontWeight: 700, fill: '#0D3125' }} />
+                </Bar>
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
 
         {/* Abertura Spot vs Contrato */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-          <ChartCard title="Pedidos por comprador — Spot vs Contrato">
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={dash.spotContrato.groups.map(g => ({
-                name: g.key, ...Object.fromEntries(years.map(y => [y, g.byYear[y]?.pedidosPorComprador || 0])),
-              }))}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(13,49,37,0.06)" vertical={false} />
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                <Tooltip content={<ChartTooltip fmt={(v) => fmtDec(v, 1)} />} cursor={{ fill: 'rgba(0,210,106,0.05)' }} />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
-                {years.map(y => <Bar key={y} dataKey={String(y)} name={String(y)} fill={YEAR_COLORS[y] || BRAND} radius={[4, 4, 0, 0]} />)}
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
-
-          <ChartCard title="Spend por comprador — Spot vs Contrato">
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={dash.spotContrato.groups.map(g => ({
-                name: g.key, ...Object.fromEntries(years.map(y => [y, g.byYear[y]?.spendPorComprador || 0])),
-              }))}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(13,49,37,0.06)" vertical={false} />
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={fmtBRL} width={70} />
-                <Tooltip content={<ChartTooltip fmt={fmtBRL} />} cursor={{ fill: 'rgba(0,210,106,0.05)' }} />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
-                {years.map(y => <Bar key={y} dataKey={String(y)} name={String(y)} fill={YEAR_COLORS[y] || BRAND} radius={[4, 4, 0, 0]} />)}
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
-        </div>
+        <ChartCard title="Pedidos por comprador — Spot vs Contrato" subtitle="Comparativo entre anos">
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={dash.spotContrato.groups.map(g => ({
+              name: g.key, ...Object.fromEntries(years.map(y => [y, g.byYear[y]?.pedidosPorComprador || 0])),
+            }))} margin={{ top: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(13,49,37,0.06)" vertical={false} />
+              <XAxis dataKey="name" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+              <Tooltip content={<ChartTooltip fmt={(v) => fmtDec(v, 1)} />} cursor={{ fill: 'rgba(0,210,106,0.05)' }} />
+              <Legend wrapperStyle={{ fontSize: 11 }} />
+              {years.map(y => (
+                <Bar key={y} dataKey={String(y)} name={String(y)} fill={YEAR_COLORS[y] || BRAND} radius={[4, 4, 0, 0]}>
+                  <LabelList dataKey={String(y)} position="top"
+                    formatter={(v) => (v >= 0.1 ? fmtDec(v, 1) : '')}
+                    style={{ fontSize: 9, fontWeight: 700, fill: '#0D3125' }} />
+                </Bar>
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
 
         {/* Nota metodológica */}
         <div className="bg-white rounded-2xl border p-4" style={{ borderColor: 'rgba(13,49,37,0.1)' }}>
@@ -490,9 +544,10 @@ export function Produtividade() {
           </div>
           <ul className="space-y-1 text-[11px] leading-snug" style={{ color: 'rgba(13,49,37,0.55)' }}>
             <li>• <b>Pedidos</b> = contagem distinta do identificador de pedido (uma linha = item; um pedido pode ter vários itens).</li>
-            <li>• <b>Headcount</b> = compradores ativos no período: admissão ≤ fim e (sem saída ou saída ≥ início). Recalculado mês a mês na visão mensal.</li>
+            <li>• <b>Headcount médio</b> = média dos compradores ativos mês a mês no período (ativo: admissão ≤ fim do mês e sem saída ou saída ≥ início). Quem entra/sai pesa proporcionalmente aos meses ativos — é o denominador de pedidos/comprador.</li>
             <li>• <b>YTD</b> = 01/01 até {cutoffLabel} (data mais recente da base) em cada ano, para comparação no mesmo intervalo.</li>
-            <li>• <b>Filtros</b>: Comprador e Cargo afetam também o headcount; os demais restringem apenas pedidos e spend.</li>
+            <li>• <b>Filtros</b>: Comprador e Cargo afetam também o headcount; os demais (inclusive Escopo de Compras) restringem apenas a contagem de pedidos.</li>
+            <li>• Esta análise foca exclusivamente em <b>produtividade (volume de pedidos)</b> — indicadores de spend não são exibidos aqui.</li>
           </ul>
         </div>
 

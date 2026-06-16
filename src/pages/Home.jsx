@@ -16,7 +16,7 @@ const MODULES = [
   },
   {
     id: 'raiox', icon: ScanLine, label: 'Raio-X de Preços',
-    desc: 'Cost breakdowns com indicadores econômicos e should cost.',
+    desc: 'Cost breakdowns com indicadores econômicos por subcategoria.',
   },
   {
     id: 'riskshield', icon: ShieldCheck, label: 'Supplier Risk Shield',
