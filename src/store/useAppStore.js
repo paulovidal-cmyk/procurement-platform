@@ -185,8 +185,9 @@ const useAppStore = create(
       // Notifications
       notifications: SEED_NOTIFICATIONS,
 
-      // Users
-      allUsers: DEMO_USERS.map(u => ({ ...u, passwordHash: null, mustChangePassword: u.role !== 'admin' })),
+      // Users — preserva passwordHash/mustChangePassword do seed (admin já vem
+      // com senha definida; demais nascem sem senha, logo bloqueados).
+      allUsers: DEMO_USERS.map(u => ({ ...u })),
       pendingUsers: [],
 
       // Custom Fields
@@ -223,9 +224,13 @@ const useAppStore = create(
           return { success: false, error: 'Usuário não encontrado. Contate o Administrador.' }
         }
 
-        const inputHash    = await hashPassword(password)
-        const expectedHash = user.passwordHash ?? await hashPassword(user.email)
-        if (inputHash !== expectedHash) {
+        // Sem senha definida = conta bloqueada (não há mais fallback "senha = e-mail").
+        if (!user.passwordHash) {
+          return { success: false, error: 'Conta sem senha definida. Solicite uma senha provisória ao Administrador.' }
+        }
+
+        const inputHash = await hashPassword(password)
+        if (inputHash !== user.passwordHash) {
           return { success: false, error: 'Senha incorreta.' }
         }
 
@@ -247,25 +252,30 @@ const useAppStore = create(
         }))
       },
 
-      resetUserPassword: (userId) => {
+      // Define uma senha provisória (definida pelo admin) e força troca no 1º acesso.
+      resetUserPassword: async (userId, provisionalPassword) => {
+        if (!provisionalPassword) return { error: 'Informe uma senha provisória.' }
+        const hash = await hashPassword(provisionalPassword)
         set(s => ({
           allUsers: s.allUsers.map(u =>
-            u.id === userId ? { ...u, passwordHash: null, mustChangePassword: true } : u
+            u.id === userId ? { ...u, passwordHash: hash, mustChangePassword: true } : u
           ),
         }))
+        return { success: true }
       },
 
-      addAllowedUser: (email, role, name) => {
+      addAllowedUser: async (email, role, name, provisionalPassword) => {
         const { allUsers } = get()
         const lc = email.toLowerCase().trim()
         if (allUsers.find(u => u.email.toLowerCase() === lc)) return { error: 'E-mail já cadastrado.' }
+        if (!provisionalPassword) return { error: 'Informe uma senha provisória.' }
         const newUser = {
           id: 'u-' + uuid(),
           email: lc,
           name: name || lc.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
           role,
           avatar: lc.slice(0, 2).toUpperCase(),
-          passwordHash: null,
+          passwordHash: await hashPassword(provisionalPassword),
           mustChangePassword: true,
         }
         set(s => ({ allUsers: [...s.allUsers, newUser] }))
@@ -484,7 +494,7 @@ const useAppStore = create(
         set({ sheetsData: MOCK_SHEETS_DATA, sheetsError: null }),
     }),
     {
-      name: 'procurement-store-v3',
+      name: 'procurement-store-v4',
       partialize: (state) => ({
         schemaVersion:   state.schemaVersion,
         isAuthenticated: state.isAuthenticated,

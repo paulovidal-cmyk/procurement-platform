@@ -16,13 +16,15 @@ function AddUserForm({ onClose }) {
   const [email, setEmail] = useState('')
   const [name,  setName]  = useState('')
   const [role,  setRole]  = useState('comprador')
+  const [pwd,   setPwd]   = useState('')
   const [error, setError] = useState('')
   const [ok,    setOk]    = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!email.trim()) { setError('E-mail obrigatório.'); return }
-    const result = addAllowedUser(email.trim(), role, name.trim())
+    if (pwd.trim().length < 6) { setError('Senha provisória: mínimo 6 caracteres.'); return }
+    const result = await addAllowedUser(email.trim(), role, name.trim(), pwd.trim())
     if (result?.error) { setError(result.error); return }
     setOk(true)
     setTimeout(onClose, 1200)
@@ -50,6 +52,9 @@ function AddUserForm({ onClose }) {
           className="text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200">
           {ROLE_OPTIONS.map(r => <option key={r.id} value={r.id}>{r.label}</option>)}
         </select>
+        <input type="text" placeholder="Senha provisória *" value={pwd}
+          onChange={e => { setPwd(e.target.value); setError('') }}
+          className="text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 flex-1 min-w-0" />
         {error && <p className="text-xs text-red-600">{error}</p>}
         <div className="ml-auto flex gap-2">
           <button type="button" onClick={onClose}
@@ -64,7 +69,7 @@ function AddUserForm({ onClose }) {
         </div>
       </div>
       <p className="text-xs text-gray-400">
-        A senha padrão será o próprio e-mail. O usuário precisará criar uma nova senha no primeiro acesso.
+        Informe uma senha provisória e repasse ao usuário. Ele será obrigado a criar uma senha pessoal no primeiro acesso.
       </p>
     </form>
   )
@@ -82,6 +87,7 @@ export function Settings() {
   const [activeTab,   setActiveTab]   = useState('users')
   const [showAddUser, setShowAddUser] = useState(false)
   const [resetConfirm, setResetConfirm] = useState(null) // userId
+  const [resetPwd,     setResetPwd]     = useState('')
 
   if (currentUser?.role !== 'admin') {
     return (
@@ -202,15 +208,24 @@ export function Settings() {
                     <td className="px-4 py-3">
                       {resetConfirm === user.id ? (
                         <div className="flex items-center gap-1.5">
-                          <span className="text-xs text-red-600">Confirma?</span>
-                          <button onClick={() => { resetUserPassword(user.id); setResetConfirm(null) }}
-                            className="text-xs text-red-600 font-semibold hover:text-red-800">Sim</button>
-                          <button onClick={() => setResetConfirm(null)}
-                            className="text-xs text-gray-500 hover:text-gray-700">Não</button>
+                          <input
+                            type="text" autoFocus value={resetPwd}
+                            onChange={e => setResetPwd(e.target.value)}
+                            placeholder="Senha provisória"
+                            className="text-xs border border-gray-200 rounded-lg px-2 py-1 w-32 focus:outline-none focus:ring-2 focus:ring-amber-200" />
+                          <button
+                            onClick={async () => {
+                              if (resetPwd.trim().length < 6) return
+                              await resetUserPassword(user.id, resetPwd.trim())
+                              setResetConfirm(null); setResetPwd('')
+                            }}
+                            className="text-xs text-emerald-600 font-semibold hover:text-emerald-800">Salvar</button>
+                          <button onClick={() => { setResetConfirm(null); setResetPwd('') }}
+                            className="text-xs text-gray-500 hover:text-gray-700">Cancelar</button>
                         </div>
                       ) : (
                         <button
-                          onClick={() => setResetConfirm(user.id)}
+                          onClick={() => { setResetConfirm(user.id); setResetPwd('') }}
                           disabled={isSelf}
                           className="flex items-center gap-1 text-xs text-gray-500 hover:text-amber-600 hover:bg-amber-50 px-2 py-1 rounded-lg transition-all disabled:opacity-30 disabled:cursor-default"
                         >

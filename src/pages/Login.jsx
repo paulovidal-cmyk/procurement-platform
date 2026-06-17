@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { ShoppingCart, Mail, Lock, Eye, EyeOff, AlertCircle, ChevronRight } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import useAppStore from '../store/useAppStore.js'
-import { DEMO_USERS } from '../constants/roles.js'
 
 export function Login() {
   const login = useAppStore(s => s.login)
@@ -11,7 +10,6 @@ export function Login() {
   const [showPwd,  setShowPwd]  = useState(false)
   const [status,   setStatus]   = useState('idle') // idle | loading | error
   const [errorMsg, setErrorMsg] = useState('')
-  const [showDemo, setShowDemo] = useState(false)
 
   const handleLogin = async (e) => {
     e?.preventDefault()
@@ -23,19 +21,6 @@ export function Login() {
     } else {
       setStatus('error')
       setErrorMsg(result.error)
-    }
-  }
-
-  const handleQuickLogin = async (user) => {
-    setEmail(user.email)
-    setPassword(user.email) // default password = email
-    setStatus('loading')
-    const result = await login(user.email, user.email)
-    if (!result.success) {
-      setStatus('error')
-      setErrorMsg(result.error)
-    } else {
-      setStatus('idle')
     }
   }
 
@@ -128,7 +113,7 @@ export function Login() {
                   </button>
                 </div>
                 <p className="text-xs text-gray-400 mt-1">
-                  Primeiro acesso? Sua senha padrão é o seu próprio e-mail.
+                  Primeiro acesso? Use a senha provisória fornecida pelo Administrador.
                 </p>
               </div>
 
@@ -157,46 +142,6 @@ export function Login() {
                 )}
               </button>
             </form>
-
-            {/* Demo quick login */}
-            <div className="mt-6">
-              <button
-                onClick={() => setShowDemo(v => !v)}
-                className="w-full text-center text-xs text-gray-400 hover:text-gray-600 transition-colors py-1"
-              >
-                {showDemo ? '▲ Fechar acesso demo' : '▼ Acesso rápido (ambiente demo)'}
-              </button>
-
-              {showDemo && (
-                <div className="mt-3 border border-dashed border-gray-200 rounded-xl overflow-hidden">
-                  <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                      Usuários Demo · senha = e-mail
-                    </p>
-                  </div>
-                  {DEMO_USERS.map(user => (
-                    <button
-                      key={user.id}
-                      type="button"
-                      onClick={() => handleQuickLogin(user)}
-                      className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0"
-                          style={{ backgroundColor:'#0D3125' }}>
-                          {user.avatar}
-                        </div>
-                        <div className="text-left">
-                          <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                          <p className="text-xs text-gray-500">{user.email}</p>
-                        </div>
-                      </div>
-                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full capitalize">{user.role}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
 
             <div className="mt-6 pt-5 border-t border-gray-100 text-center">
               <p className="text-xs text-gray-400">

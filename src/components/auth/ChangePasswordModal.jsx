@@ -56,7 +56,7 @@ export function ChangePasswordModal() {
           Olá, <strong>{currentUser?.name}</strong>! Por segurança, crie uma senha pessoal antes de continuar.
           <br />
           <span className="text-xs text-amber-600 mt-0.5 block">
-            Sua senha padrão atual é o seu e-mail.
+            Você está usando a senha provisória fornecida pelo Administrador.
           </span>
         </div>
 

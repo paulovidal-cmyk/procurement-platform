@@ -60,10 +60,24 @@ export const ROLES = {
   },
 }
 
-export const DEMO_USERS = [
+/**
+ * Usuários-semente da plataforma.
+ *
+ * Login exige `passwordHash` definido — NÃO há mais fallback "senha = e-mail".
+ * Só o admin (Paulo) tem senha definida no seed; os demais nascem SEM senha
+ * (passwordHash:null) e, portanto, BLOQUEADOS até o admin definir uma senha
+ * provisória em Configurações → Usuários. São dados de exemplo do Kanban.
+ *
+ * O hash do admin é SHA-256 (ver algorithms/crypto.js) da senha definida.
+ */
+export const SEED_USERS = [
   { id:'u1', name:'Ana Lima',    email:'ana.lima@stone.com.br',    role:'comprador',   avatar:'AL', passwordHash:null, mustChangePassword:true  },
   { id:'u2', name:'Bruno Costa', email:'bruno.costa@stone.com.br', role:'coordenador', avatar:'BC', passwordHash:null, mustChangePassword:true  },
   { id:'u3', name:'Carla Melo',  email:'carla.melo@stone.com.br',  role:'gestor',      avatar:'CM', passwordHash:null, mustChangePassword:true  },
   { id:'u4', name:'Diego Faria', email:'diego.faria@stone.com.br', role:'diretor',     avatar:'DF', passwordHash:null, mustChangePassword:true  },
-  { id:'u5', name:'Paulo Vidal', email:'paulo.vidal@stone.com.br', role:'admin',       avatar:'PV', passwordHash:null, mustChangePassword:false },
+  // Admin — senha "Pau331331+" (SHA-256). mustChangePassword:false → entra direto.
+  { id:'u5', name:'Paulo Vidal', email:'paulo.vidal@stone.com.br', role:'admin',       avatar:'PV', passwordHash:'b0fe161a3c504561fa6d235bd57adf9a7b969ceb9f90b3660ac21199b35df996', mustChangePassword:false },
 ]
+
+// Alias retrocompat — o restante do código importa DEMO_USERS.
+export const DEMO_USERS = SEED_USERS
