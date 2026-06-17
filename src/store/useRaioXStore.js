@@ -11,8 +11,8 @@ export const EMPTY_LINHA = () => ({
   indicador:    'IPCA',
   peso:         '',
   tipoVariacao: 'ponta_a_ponta',
-  dataInicial:  '2024-01',
-  dataFinal:    '2024-12',
+  dataInicial:  '2025-01',
+  dataFinal:    '2026-05',
   override:     '',
 })
 
@@ -30,9 +30,9 @@ const SEED_PACOTES = [
     subcategoria: 'Embalagens Plásticas',
     fornecedor:   'PackBrasil Ltda',
     linhas: [
-      { id: 'l1', indicador: 'IPCA',    peso: 40, tipoVariacao: 'ponta_a_ponta', dataInicial: '2024-01', dataFinal: '2024-12', override: '' },
-      { id: 'l2', indicador: 'IGP-M',   peso: 35, tipoVariacao: 'ponta_a_ponta', dataInicial: '2024-01', dataFinal: '2024-12', override: '' },
-      { id: 'l3', indicador: 'Dólar',   peso: 25, tipoVariacao: 'media_movel',   dataInicial: '2024-01', dataFinal: '2024-12', override: '' },
+      { id: 'l1', indicador: 'IPCA',    peso: 40, tipoVariacao: 'ponta_a_ponta', dataInicial: '2025-01', dataFinal: '2026-05', override: '' },
+      { id: 'l2', indicador: 'IGP-M',   peso: 35, tipoVariacao: 'ponta_a_ponta', dataInicial: '2025-01', dataFinal: '2026-05', override: '' },
+      { id: 'l3', indicador: 'USD/BRL', peso: 25, tipoVariacao: 'media_movel',   dataInicial: '2025-01', dataFinal: '2026-05', override: '' },
     ],
     margem: -5,
     precoFornecedor: 12,
@@ -43,8 +43,8 @@ const SEED_PACOTES = [
     subcategoria: 'Serviços de TI',
     fornecedor:   'TechSupply Ltda',
     linhas: [
-      { id: 'l4', indicador: 'IPCA',  peso: 60, tipoVariacao: 'media_movel',   dataInicial: '2024-01', dataFinal: '2024-12', override: '' },
-      { id: 'l5', indicador: 'SELIC', peso: 40, tipoVariacao: 'ponta_a_ponta', dataInicial: '2024-01', dataFinal: '2024-12', override: '' },
+      { id: 'l4', indicador: 'IPCA',  peso: 60, tipoVariacao: 'media_movel',   dataInicial: '2025-01', dataFinal: '2026-05', override: '' },
+      { id: 'l5', indicador: 'IGP-M', peso: 40, tipoVariacao: 'ponta_a_ponta', dataInicial: '2025-01', dataFinal: '2026-05', override: '' },
     ],
     margem: 0,
     precoFornecedor: 8,
@@ -55,9 +55,9 @@ const SEED_PACOTES = [
     subcategoria: 'Matéria-Prima',
     fornecedor:   'RawMat Brasil',
     linhas: [
-      { id: 'l6', indicador: 'IGP-M',  peso: 50, tipoVariacao: 'ponta_a_ponta', dataInicial: '2023-01', dataFinal: '2023-12', override: '' },
-      { id: 'l7', indicador: 'Dólar',  peso: 30, tipoVariacao: 'ponta_a_ponta', dataInicial: '2023-01', dataFinal: '2023-12', override: '' },
-      { id: 'l8', indicador: 'INPC',   peso: 20, tipoVariacao: 'media_movel',   dataInicial: '2023-01', dataFinal: '2023-12', override: '' },
+      { id: 'l6', indicador: 'IGP-M',   peso: 50, tipoVariacao: 'ponta_a_ponta', dataInicial: '2025-01', dataFinal: '2026-05', override: '' },
+      { id: 'l7', indicador: 'USD/BRL', peso: 30, tipoVariacao: 'ponta_a_ponta', dataInicial: '2025-01', dataFinal: '2026-05', override: '' },
+      { id: 'l8', indicador: 'INPC',    peso: 20, tipoVariacao: 'media_movel',   dataInicial: '2025-01', dataFinal: '2026-05', override: '' },
     ],
     margem: -8,
     precoFornecedor: -2,
@@ -88,7 +88,7 @@ const useRaioXStore = create(
         set({ indicadoresData: data }),
     }),
     {
-      name: 'raiox-store-v1',
+      name: 'raiox-store-v2',
       partialize: s => ({ pacotes: s.pacotes }),
     }
   )

@@ -1,61 +1,84 @@
 /**
- * Dados mensais de indicadores econômicos (Jan/2022 – Dez/2024)
- * Formato: { data: 'DD/MM/YYYY', indicador: string, valor: number (% mensal) }
+ * Base de indicadores econômicos do Raio-X de Preços.
+ *
+ * Fonte: `baseIndicadores.csv` (colunas Data, Indicador, Valor — decimal vírgula),
+ * importada como texto via `?raw` (Vite) e transformada uma única vez no load.
+ *
+ * O engine (algorithms/raiox.js) trabalha com **% mensal** por indicador, um valor
+ * por mês (faz `(1 + valor/100)`). Por isso:
+ *  - IPCA, IGP-M, INPC: já são % mensal — apenas deduplicamos para 1 valor/mês.
+ *  - USD/BRL: vem como cotação DIÁRIA. Convertemos para variação % mês-a-mês da
+ *    cotação de fim de mês (mesma modelagem do antigo "Dólar").
+ *
+ * Cobertura atual: jan/2025 → mai/2026 (USD/BRL até jun/2026).
+ * Formato de saída: { data: 'DD/MM/YYYY', indicador: string, valor: number }
  */
+import Papa from 'papaparse'
+import csvText from './baseIndicadores.csv?raw'
 
-const INDICADORES = ['IPCA', 'IGP-M', 'SELIC', 'Dólar', 'INPC']
+// Indicadores tratados como % mensal direto (uma entrada por mês).
+const MONTHLY_PCT = ['IPCA', 'IGP-M', 'INPC']
+// Indicador de cotação diária → convertido para variação % mensal.
+const RATE_DAILY = 'USD/BRL'
 
-const MONTHLY_VALUES = {
-  IPCA:  [
-    // 2022
-    0.54, 1.01, 1.62, 1.06, 0.47, 0.67, -0.68, -0.73, -0.29, 0.59, 0.41, 0.54,
-    // 2023
-    0.53, 0.84, 0.71, 0.61, 0.23, 0.08,  0.12, -0.02,  0.26, 0.24, 0.28, 0.62,
-    // 2024
-    0.42, 0.83, 0.16, 0.38, 0.46, 0.36,  0.38, -0.02,  0.44, 0.56, 0.39, 0.52,
-  ],
-  'IGP-M': [
-    // 2022
-    1.82, 1.83, 1.74, 1.41, 0.52, 0.59, -0.70, -0.70, 0.00, 0.60, 0.56, 0.47,
-    // 2023
-    0.21, -0.06, -0.27, -0.96, -1.84, -1.93, -0.72, -0.93, -0.49, 0.53, 0.45, 0.74,
-    // 2024
-    0.07, 0.97, 0.44, 0.31, 0.81, 0.81, 0.61, 0.44, 0.62, 1.52, 1.30, 0.94,
-  ],
-  SELIC: [
-    // 2022
-    0.73, 0.76, 0.83, 0.83, 1.03, 1.03, 1.03, 1.03, 1.05, 1.04, 1.04, 1.04,
-    // 2023
-    1.12, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.05, 1.01, 1.01, 0.97,
-    // 2024
-    0.97, 0.97, 0.97, 0.97, 0.97, 1.05, 1.05, 1.05, 1.05, 1.08, 1.08, 1.08,
-  ],
-  'Dólar': [
-    // 2022
-     1.50, -2.10, -1.80,  0.80,  2.30,  1.10, -3.20,  1.80,  2.90, -0.50, -2.10, -1.20,
-    // 2023
-     0.80,  3.20, -0.40, -2.80, -0.70,  1.20,  0.60,  4.30,  0.50, -1.10, -3.80,  0.20,
-    // 2024
-     1.50,  0.30,  1.80,  0.80,  1.60,  1.20,  2.80,  1.90,  0.70,  3.80,  2.10, -0.50,
-  ],
-  INPC: [
-    // 2022
-    0.44, 0.94, 1.74, 1.08, 0.59, 0.58, -0.80, -0.88, -0.14, 0.54, 0.43, 0.57,
-    // 2023
-    0.49, 0.82, 0.60, 0.55, 0.24, -0.01,  0.11, -0.09,  0.24, 0.31, 0.23, 0.55,
-    // 2024
-    0.31, 0.76, 0.19, 0.40, 0.43,  0.39,  0.27, -0.04,  0.48, 0.60, 0.32, 0.48,
-  ],
+const parsed = Papa.parse(csvText, {
+  header: true,
+  skipEmptyLines: true,
+  transformHeader: h => h.trim(),
+})
+
+/** 'DD/MM/YYYY' → { y, m, d, t } (t = timestamp para ordenação). */
+function parseBr(dateStr) {
+  const [d, m, y] = String(dateStr).trim().split('/').map(Number)
+  return { y, m, d, t: new Date(y, m - 1, d).getTime() }
+}
+const monthKey = (p) => `${p.y}-${String(p.m).padStart(2, '0')}`
+const num = (v) => parseFloat(String(v).replace(/\./g, '').replace(',', '.')) // tira milhar, vírgula→ponto
+
+// Linhas cruas tipadas
+const raw = parsed.data
+  .map(r => ({ ind: (r.Indicador || '').trim(), p: parseBr(r.Data), valor: num(r.Valor) }))
+  .filter(r => r.ind && r.p.y && !Number.isNaN(r.valor))
+
+const out = []
+
+// ── % mensal (IPCA, IGP-M, INPC): dedup por mês, mantém a entrada mais recente ──
+for (const ind of MONTHLY_PCT) {
+  const byMonth = new Map() // 'YYYY-MM' → { p, valor }
+  for (const r of raw) {
+    if (r.ind !== ind) continue
+    const k = monthKey(r.p)
+    const cur = byMonth.get(k)
+    if (!cur || r.p.t >= cur.p.t) byMonth.set(k, r)
+  }
+  for (const { p, valor } of byMonth.values()) {
+    out.push({ data: `01/${String(p.m).padStart(2, '0')}/${p.y}`, indicador: ind, valor })
+  }
 }
 
-function pad(n) { return String(n).padStart(2, '0') }
+// ── USD/BRL: cotação de fim de mês → variação % mês-a-mês ──
+{
+  const eom = new Map() // 'YYYY-MM' → { p, valor } (maior dia do mês)
+  for (const r of raw) {
+    if (r.ind !== RATE_DAILY) continue
+    const k = monthKey(r.p)
+    const cur = eom.get(k)
+    if (!cur || r.p.t > cur.p.t) eom.set(k, r)
+  }
+  const months = [...eom.entries()].sort((a, b) => a[0].localeCompare(b[0]))
+  for (let i = 1; i < months.length; i++) {
+    const [, prev] = months[i - 1]
+    const [, cur]  = months[i]
+    const variacao = prev.valor ? (cur.valor / prev.valor - 1) * 100 : 0
+    out.push({
+      data: `01/${String(cur.p.m).padStart(2, '0')}/${cur.p.y}`,
+      indicador: RATE_DAILY,
+      valor: Math.round(variacao * 100) / 100, // 2 casas
+    })
+  }
+}
 
-export const MOCK_INDICADORES = INDICADORES.flatMap(ind =>
-  MONTHLY_VALUES[ind].map((valor, i) => {
-    const year  = 2022 + Math.floor(i / 12)
-    const month = (i % 12) + 1
-    return { data: `01/${pad(month)}/${year}`, indicador: ind, valor }
-  })
-)
+export const MOCK_INDICADORES = out
 
-export const INDICADOR_LABELS = INDICADORES
+// Ordem dos indicadores nos dropdowns
+export const INDICADOR_LABELS = ['IPCA', 'IGP-M', 'INPC', 'USD/BRL']
