@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { MOCK_INDICADORES } from '../data/mockIndicadores.js'
+import { calcularBreakdown } from '../algorithms/raiox.js'
 
 let _id = 0
 const uid = () => 'rx-' + Date.now().toString(36) + (++_id).toString(36)
@@ -17,6 +18,7 @@ export const EMPTY_LINHA = () => ({
 })
 
 export const EMPTY_PACOTE = () => ({
+  categoria:         '',
   subcategoria:      '',
   fornecedor:        '',
   linhas:            [EMPTY_LINHA()],
@@ -27,7 +29,8 @@ export const EMPTY_PACOTE = () => ({
 const SEED_PACOTES = [
   {
     id: 'pkg-demo-1',
-    subcategoria: 'Embalagens Plásticas',
+    categoria:    'Bobinas',
+    subcategoria: 'Bobinas',
     fornecedor:   'PackBrasil Ltda',
     linhas: [
       { id: 'l1', indicador: 'IPCA',    peso: 40, tipoVariacao: 'ponta_a_ponta', dataInicial: '2025-01', dataFinal: '2026-05', override: '' },
@@ -40,7 +43,8 @@ const SEED_PACOTES = [
   },
   {
     id: 'pkg-demo-2',
-    subcategoria: 'Serviços de TI',
+    categoria:    'Software',
+    subcategoria: 'Software Core',
     fornecedor:   'TechSupply Ltda',
     linhas: [
       { id: 'l4', indicador: 'IPCA',  peso: 60, tipoVariacao: 'media_movel',   dataInicial: '2025-01', dataFinal: '2026-05', override: '' },
@@ -52,7 +56,8 @@ const SEED_PACOTES = [
   },
   {
     id: 'pkg-demo-3',
-    subcategoria: 'Matéria-Prima',
+    categoria:    'Logística',
+    subcategoria: 'Frete e Transporte',
     fornecedor:   'RawMat Brasil',
     linhas: [
       { id: 'l6', indicador: 'IGP-M',   peso: 50, tipoVariacao: 'ponta_a_ponta', dataInicial: '2025-01', dataFinal: '2026-05', override: '' },
@@ -63,7 +68,16 @@ const SEED_PACOTES = [
     precoFornecedor: -2,
     createdAt: new Date(Date.now() - 7 * 86400000).toISOString(),
   },
-]
+].map(p => {
+  // Congela as inflações na "criação" do seed, usando a base atual.
+  const r = calcularBreakdown(p.linhas, MOCK_INDICADORES, p.margem)
+  return {
+    ...p,
+    inflacaoOriginal: r.variacaoOriginal,
+    inflacaoAjustada: r.variacaoBase,
+    inflacaoFinal:    r.variacaoFinal,
+  }
+})
 
 const useRaioXStore = create(
   persist(

@@ -83,11 +83,13 @@ export function Settings() {
   const rejectUser     = useAppStore(s => s.rejectUser)
   const updateUserRole = useAppStore(s => s.updateUserRole)
   const resetUserPassword = useAppStore(s => s.resetUserPassword)
+  const deleteUser        = useAppStore(s => s.deleteUser)
 
   const [activeTab,   setActiveTab]   = useState('users')
   const [showAddUser, setShowAddUser] = useState(false)
   const [resetConfirm, setResetConfirm] = useState(null) // userId
   const [resetPwd,     setResetPwd]     = useState('')
+  const [deleteConfirm, setDeleteConfirm] = useState(null) // userId
 
   if (currentUser?.role !== 'admin') {
     return (
@@ -171,7 +173,7 @@ export function Settings() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
-                {['Usuário','Email','Perfil','Senha','Status'].map(h => (
+                {['Usuário','Email','Perfil','Senha','Status','Ações'].map(h => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
                 ))}
               </tr>
@@ -242,6 +244,26 @@ export function Settings() {
                         <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
                           Ativo
                         </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      {deleteConfirm === user.id ? (
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs text-red-600">Excluir?</span>
+                          <button onClick={() => { deleteUser(user.id); setDeleteConfirm(null) }}
+                            className="text-xs text-red-600 font-semibold hover:text-red-800">Sim</button>
+                          <button onClick={() => setDeleteConfirm(null)}
+                            className="text-xs text-gray-500 hover:text-gray-700">Não</button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setDeleteConfirm(user.id)}
+                          disabled={isSelf}
+                          className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-600 hover:bg-red-50 px-2 py-1 rounded-lg transition-all disabled:opacity-30 disabled:cursor-default"
+                          title={isSelf ? 'Você não pode excluir a si mesmo' : 'Excluir usuário'}
+                        >
+                          <Trash2 size={12} /> Excluir
+                        </button>
                       )}
                     </td>
                   </tr>

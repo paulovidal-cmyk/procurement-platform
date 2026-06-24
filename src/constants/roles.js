@@ -10,41 +10,30 @@ export const ROLES = {
     color: 'bg-sky-100 text-sky-700',
     badgeColor: '#0EA5E9',
   },
-  coordenador: {
-    id: 'coordenador',
-    label: 'Coordenador',
-    canCreate: false,
-    canEdit: false,
-    canApprove: true,
-    approveColumns: ['coordenacao'],
-    canDrag: false,
-    canAccessSettings: false,
-    color: 'bg-blue-100 text-blue-700',
-    badgeColor: '#3B82F6',
-  },
   gestor: {
     id: 'gestor',
     label: 'Gestor',
     canCreate: false,
     canEdit: false,
     canApprove: true,
-    approveColumns: ['gestor'],
+    approveColumns: ['coordenacao', 'gestor', 'diretor'],
     canDrag: false,
     canAccessSettings: false,
     color: 'bg-violet-100 text-violet-700',
     badgeColor: '#8B5CF6',
   },
-  diretor: {
-    id: 'diretor',
-    label: 'Diretor',
+  // Visitante: somente leitura — por padrão TODAS as abas ficam bloqueadas
+  // (ver defaultModulePermissions em useAppStore: visitante = HIDDEN em tudo).
+  visitante: {
+    id: 'visitante',
+    label: 'Visitante',
     canCreate: false,
     canEdit: false,
-    canApprove: true,
-    approveColumns: ['diretor'],
+    canApprove: false,
     canDrag: false,
     canAccessSettings: false,
-    color: 'bg-red-100 text-red-700',
-    badgeColor: '#EF4444',
+    color: 'bg-gray-100 text-gray-600',
+    badgeColor: '#9CA3AF',
   },
   admin: {
     id: 'admin',
@@ -72,9 +61,9 @@ export const ROLES = {
  */
 export const SEED_USERS = [
   { id:'u1', name:'Ana Lima',    email:'ana.lima@stone.com.br',    role:'comprador',   avatar:'AL', passwordHash:null, mustChangePassword:true  },
-  { id:'u2', name:'Bruno Costa', email:'bruno.costa@stone.com.br', role:'coordenador', avatar:'BC', passwordHash:null, mustChangePassword:true  },
+  { id:'u2', name:'Bruno Costa', email:'bruno.costa@stone.com.br', role:'gestor',      avatar:'BC', passwordHash:null, mustChangePassword:true  },
   { id:'u3', name:'Carla Melo',  email:'carla.melo@stone.com.br',  role:'gestor',      avatar:'CM', passwordHash:null, mustChangePassword:true  },
-  { id:'u4', name:'Diego Faria', email:'diego.faria@stone.com.br', role:'diretor',     avatar:'DF', passwordHash:null, mustChangePassword:true  },
+  { id:'u4', name:'Diego Faria', email:'diego.faria@stone.com.br', role:'visitante',   avatar:'DF', passwordHash:null, mustChangePassword:true  },
   // Admin — senha "Pau331331+" (SHA-256). mustChangePassword:false → entra direto.
   { id:'u5', name:'Paulo Vidal', email:'paulo.vidal@stone.com.br', role:'admin',       avatar:'PV', passwordHash:'b0fe161a3c504561fa6d235bd57adf9a7b969ceb9f90b3660ac21199b35df996', mustChangePassword:false },
 ]

@@ -9,12 +9,16 @@ import { DEMO_USERS, ROLES } from '../constants/roles.js'
 import { MODULES, ACCESS } from '../constants/modules.js'
 import { MOCK_SHEETS_DATA } from '../data/mockSheetsData.js'
 
-/** Matriz de permissões padrão: todo papel com acesso total a todo módulo. */
+/**
+ * Matriz de permissões padrão: papéis com acesso total a todo módulo, EXCETO
+ * Visitante, que nasce com todas as abas OCULTAS (bloqueado por padrão).
+ */
 function defaultModulePermissions() {
   const out = {}
   for (const roleId of Object.keys(ROLES)) {
+    const level = roleId === 'visitante' ? ACCESS.HIDDEN : ACCESS.FULL
     out[roleId] = {}
-    for (const m of MODULES) out[roleId][m.id] = ACCESS.FULL
+    for (const m of MODULES) out[roleId][m.id] = level
   }
   return out
 }
@@ -262,6 +266,11 @@ const useAppStore = create(
           ),
         }))
         return { success: true }
+      },
+
+      /** Exclui um usuário definitivamente. */
+      deleteUser: (userId) => {
+        set(s => ({ allUsers: s.allUsers.filter(u => u.id !== userId) }))
       },
 
       addAllowedUser: async (email, role, name, provisionalPassword) => {
@@ -534,13 +543,19 @@ const useAppStore = create(
             state.modulePermissions[roleId] = { ...defPerms[roleId], ...(state.modulePermissions[roleId] || {}) }
           }
         }
-        // Add password fields to users that don't have them
+        // Add password fields + remapeia perfis removidos (coordenador/diretor →
+        // visitante) sem apagar usuários. Preserva quem tem perfil válido.
         if (state.allUsers) {
-          state.allUsers = state.allUsers.map(u => ({
-            ...u,
-            passwordHash:       u.passwordHash       ?? null,
-            mustChangePassword: u.mustChangePassword ?? (u.role !== 'admin'),
-          }))
+          const validRoles = new Set(Object.keys(ROLES))
+          state.allUsers = state.allUsers.map(u => {
+            const role = validRoles.has(u.role) ? u.role : 'visitante'
+            return {
+              ...u,
+              role,
+              passwordHash:       u.passwordHash       ?? null,
+              mustChangePassword: u.mustChangePassword ?? (role !== 'admin'),
+            }
+          })
         }
         // Sync currentUser with allUsers (for updated fields)
         if (state.currentUser && state.allUsers) {

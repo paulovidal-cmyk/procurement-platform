@@ -11,12 +11,15 @@ export function nextColumnOnApprove(currentColumnId) {
   return 'aprovado'
 }
 
+/** Colunas que são etapas de aprovação no Kanban. */
+export const APPROVAL_COLUMNS = ['coordenacao', 'gestor', 'diretor']
+
+/**
+ * Apenas Gestor e Admin podem aprovar — e ambos aprovam TODAS as etapas de
+ * aprovação (Coordenação, Gestor e Diretor).
+ */
 export function canUserApproveColumn(user, columnId) {
-  if (user.role === 'admin') return true
-  const roleMap = {
-    coordenador: ['coordenacao'],
-    gestor: ['gestor'],
-    diretor: ['diretor'],
-  }
-  return (roleMap[user.role] || []).includes(columnId)
+  if (user?.role === 'admin') return true
+  if (user?.role === 'gestor') return APPROVAL_COLUMNS.includes(columnId)
+  return false
 }

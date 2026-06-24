@@ -1,30 +1,47 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Plus, Trash2, Save, RefreshCw, CheckCircle,
-         ToggleLeft, ToggleRight, TrendingUp } from 'lucide-react'
+         ToggleLeft, ToggleRight, TrendingUp, Layers, SlidersHorizontal, Flag, Lock } from 'lucide-react'
 import useRaioXStore, { EMPTY_LINHA, EMPTY_PACOTE } from '../store/useRaioXStore.js'
 import { calcularBreakdown, fmtPct } from '../algorithms/raiox.js'
 import { INDICADOR_LABELS } from '../data/mockIndicadores.js'
+import { CATEGORIAS, CATEGORIA_SUBCATEGORIAS, SUBCATEGORIA_TO_CATEGORIA } from '../data/categorias.js'
 
 const BADGE = v =>
   v === null || v === undefined || isNaN(v) ? 'text-gray-400' :
   v < 0 ? 'text-emerald-600' : v > 0 ? 'text-red-600' : 'text-gray-500'
 
+/** Garante o campo categoria, inferindo de pacotes antigos pela subcategoria. */
+function hydratePkg(initialPkg) {
+  const base = initialPkg ? { ...initialPkg } : EMPTY_PACOTE()
+  if (!base.categoria && base.subcategoria) {
+    base.categoria = SUBCATEGORIA_TO_CATEGORIA[base.subcategoria] || ''
+  }
+  return base
+}
+
 export function CriacaoPacotes({ initialPkg, onSaved }) {
   const indicadoresData = useRaioXStore(s => s.indicadoresData)
   const savePacote      = useRaioXStore(s => s.savePacote)
 
-  const [form, setForm] = useState(() => initialPkg ? { ...initialPkg } : EMPTY_PACOTE())
+  const [form, setForm] = useState(() => hydratePkg(initialPkg))
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
-    setForm(initialPkg ? { ...initialPkg } : EMPTY_PACOTE())
+    setForm(hydratePkg(initialPkg))
     setSaved(false)
   }, [initialPkg])
+
+  // Subcategorias disponíveis para a categoria escolhida (inclui valor legado fora da lista).
+  const subOptions = useMemo(() => {
+    const base = CATEGORIA_SUBCATEGORIAS[form.categoria] || []
+    if (form.subcategoria && !base.includes(form.subcategoria)) return [form.subcategoria, ...base]
+    return base
+  }, [form.categoria, form.subcategoria])
 
   const titulo = [form.subcategoria, form.fornecedor].filter(Boolean).join(' · ') || 'Novo Pacote'
 
   // ── Engine ──────────────────────────────────────────────────────
-  const { linhasCalc, totalPeso, variacaoBase, variacaoFinal } = useMemo(
+  const { linhasCalc, totalPeso, variacaoBase, variacaoOriginal, variacaoFinal } = useMemo(
     () => calcularBreakdown(form.linhas, indicadoresData, form.margem),
     [form.linhas, form.margem, indicadoresData]
   )
@@ -33,6 +50,9 @@ export function CriacaoPacotes({ initialPkg, onSaved }) {
 
   // ── Helpers ──────────────────────────────────────────────────────
   const setField = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  // Trocar a categoria reseta a subcategoria (cascata).
+  const setCategoria = (cat) => setForm(f => ({ ...f, categoria: cat, subcategoria: '' }))
 
   const setLinha = (id, k, v) =>
     setForm(f => ({ ...f, linhas: f.linhas.map(l => l.id === id ? { ...l, [k]: v } : l) }))
@@ -44,8 +64,15 @@ export function CriacaoPacotes({ initialPkg, onSaved }) {
     setForm(f => ({ ...f, linhas: f.linhas.filter(l => l.id !== id) }))
 
   const handleSave = () => {
-    if (!form.subcategoria) return
-    savePacote(form)
+    if (!form.categoria || !form.subcategoria) return
+    // Congela as inflações no momento do salvamento (independem de futuras
+    // atualizações da base de indicadores).
+    savePacote({
+      ...form,
+      inflacaoOriginal: variacaoOriginal,
+      inflacaoAjustada: variacaoBase,
+      inflacaoFinal:    variacaoFinal,
+    })
     setSaved(true)
     setTimeout(() => { setSaved(false); onSaved?.() }, 800)
   }
@@ -68,7 +95,7 @@ export function CriacaoPacotes({ initialPkg, onSaved }) {
             </div>
             <button
               onClick={handleSave}
-              disabled={!form.subcategoria}
+              disabled={!form.categoria || !form.subcategoria}
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
               style={{ backgroundColor: saved ? '#00D26A' : '#0D3125' }}
             >
@@ -77,17 +104,33 @@ export function CriacaoPacotes({ initialPkg, onSaved }) {
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
+            <div>
+              <label className="text-xs font-medium text-gray-500 block mb-1">
+                Categoria <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={form.categoria}
+                onChange={e => setCategoria(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-emerald-200"
+              >
+                <option value="">Selecione…</option>
+                {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
             <div>
               <label className="text-xs font-medium text-gray-500 block mb-1">
                 Subcategoria <span className="text-red-500">*</span>
               </label>
-              <input
+              <select
                 value={form.subcategoria}
                 onChange={e => setField('subcategoria', e.target.value)}
-                placeholder="Ex: Embalagens Plásticas"
-                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-200"
-              />
+                disabled={!form.categoria}
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:bg-gray-50 disabled:text-gray-400"
+              >
+                <option value="">{form.categoria ? 'Selecione…' : 'Escolha a categoria primeiro'}</option>
+                {subOptions.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
             </div>
             <div>
               <label className="text-xs font-medium text-gray-500 block mb-1">Fornecedor</label>
@@ -285,12 +328,44 @@ export function CriacaoPacotes({ initialPkg, onSaved }) {
               <div className="rounded-xl p-3 text-center"
                 style={{ background: variacaoFinal < 0 ? 'rgba(0,210,106,0.08)' : 'rgba(239,68,68,0.06)',
                          border: `2px solid ${variacaoFinal < 0 ? 'rgba(0,210,106,0.3)' : 'rgba(239,68,68,0.2)'}` }}>
-                <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Resultado Final</p>
+                <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Inflação Prevista</p>
                 <p className={`text-lg font-black ${BADGE(variacaoFinal)}`}>{fmtPct(variacaoFinal)}</p>
                 <p className="text-[10px] text-gray-400 mt-0.5">
                   (1{fmtPct(variacaoBase, 1)}) × (1{fmtPct(parseFloat(form.margem) || 0, 1)})-1
                 </p>
               </div>
+            </div>
+          </div>
+
+          {/* Resumo de Inflação (congela ao salvar) */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-gray-800">Resumo de Inflação</h3>
+              <span className="flex items-center gap-1 text-[10px] text-gray-400">
+                <Lock size={11} /> Congela ao salvar o pacote
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                { label: 'Inflação Original', value: variacaoOriginal, icon: Layers,             desc: 'Sem override e sem margem' },
+                { label: 'Inflação Ajustada', value: variacaoBase,     icon: SlidersHorizontal,  desc: 'Com override · sem margem' },
+                { label: 'Inflação Prevista', value: variacaoFinal,    icon: Flag,               desc: 'Com override e margem', hi: true },
+              ].map(c => {
+                const Icon = c.icon
+                return (
+                  <div key={c.label} className="rounded-xl p-4 border"
+                    style={{
+                      borderColor: c.hi ? 'rgba(0,210,106,0.35)' : 'rgba(13,49,37,0.08)',
+                      background:  c.hi ? 'rgba(0,210,106,0.06)' : 'white',
+                    }}>
+                    <div className="flex items-center gap-1.5 mb-1.5 text-[10px] uppercase tracking-wide text-gray-500">
+                      <Icon size={12} style={{ color: c.hi ? '#00B85B' : '#9aa6a2' }} /> {c.label}
+                    </div>
+                    <p className={`text-2xl font-black tabular-nums ${BADGE(c.value)}`}>{fmtPct(c.value)}</p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">{c.desc}</p>
+                  </div>
+                )
+              })}
             </div>
           </div>
         </div>

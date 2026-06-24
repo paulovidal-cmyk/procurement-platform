@@ -101,11 +101,25 @@ export function calcularBreakdown(linhas, dados, margem) {
   })
 
   const totalPeso   = linhas.reduce((s, l) => s + (parseFloat(l.peso) || 0), 0)
+  // Ajustada: usa VL (override quando houver), sem margem.
   const variacaoBase = linhasCalc.reduce((s, l) => s + (l.vp ?? 0), 0)
+  // Original: usa VC (ignora override), sem margem.
+  const variacaoOriginal = linhasCalc.reduce(
+    (s, l) => s + ((l.vc ?? 0) * (parseFloat(l.peso) || 0) / 100), 0
+  )
   const m           = parseFloat(margem) || 0
   const variacaoFinal = (1 + variacaoBase / 100) * (1 + m / 100) - 1
 
-  return { linhasCalc, totalPeso, variacaoBase, variacaoFinal: variacaoFinal * 100 }
+  return { linhasCalc, totalPeso, variacaoBase, variacaoOriginal, variacaoFinal: variacaoFinal * 100 }
+}
+
+/**
+ * Inflação Real: recomputa o breakdown com a base de indicadores ATUAL,
+ * ignorando override e margem/desafio. Usada na Gestão para comparar contra a
+ * Inflação Final congelada na criação do pacote.
+ */
+export function inflacaoReal(linhas, dadosAtuais) {
+  return calcularBreakdown(linhas, dadosAtuais, 0).variacaoOriginal
 }
 
 /** Formata número como percentual com sinal */

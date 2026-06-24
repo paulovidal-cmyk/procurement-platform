@@ -5,12 +5,12 @@ import { GestaoCostBreakdowns }  from './GestaoCostBreakdowns.jsx'
 import { HubSidebar }            from '../components/layout/HubSidebar.jsx'
 
 const SUBNAV = [
-  { id: 'criar',  icon: PlusSquare,  label: 'Criação de Pacotes',       desc: 'Monte cost breakdowns' },
   { id: 'gestao', icon: LayoutGrid,  label: 'Gestão de Breakdowns',     desc: 'Acompanhe e compare' },
+  { id: 'criar',  icon: PlusSquare,  label: 'Criação de Pacotes',       desc: 'Monte cost breakdowns' },
 ]
 
 export function RaioXPrecos() {
-  const [active, setActive]     = useState('criar')
+  const [active, setActive]     = useState('gestao')
   const [editingPkg, setEditingPkg] = useState(null)
 
   const handleEdit = (pkg) => { setEditingPkg(pkg); setActive('criar') }
