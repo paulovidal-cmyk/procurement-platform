@@ -110,14 +110,14 @@ export function Settings() {
   ]
 
   return (
-    <div className="p-6 space-y-6 overflow-y-auto h-full max-w-5xl">
+    <div className="px-6 py-5 space-y-4 overflow-y-auto h-full w-full">
       <div>
         <h2 className="text-xl font-bold text-gray-900">Configurações</h2>
-        <p className="text-sm text-gray-500 mt-1">Administração de usuários, campos e integrações</p>
+        <p className="text-sm text-gray-500 mt-0.5">Administração de usuários, campos e integrações</p>
       </div>
 
       {/* Admin badge */}
-      <div className="flex items-center gap-3 bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
+      <div className="flex items-center gap-3 bg-orange-50 border border-orange-200 rounded-xl px-3 py-2">
         <Shield size={18} className="text-orange-600" />
         <div>
           <p className="text-sm font-semibold text-orange-800">Você está como Administrador</p>
@@ -174,7 +174,7 @@ export function Settings() {
             <thead className="bg-gray-50">
               <tr>
                 {['Usuário','Email','Perfil','Senha','Status','Ações'].map(h => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+                  <th key={h} className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -184,9 +184,9 @@ export function Settings() {
                 const isSelf = user.id === currentUser.id
                 return (
                   <tr key={user.id} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                    <td className="px-3 py-2">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
                           style={{ backgroundColor:'#0D3125' }}>
                           {user.avatar}
                         </div>
@@ -196,8 +196,8 @@ export function Settings() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-gray-600 text-xs">{user.email || '—'}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-2 text-gray-600 text-xs">{user.email || '—'}</td>
+                    <td className="px-3 py-2">
                       <select
                         className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                         value={user.role}
@@ -207,7 +207,7 @@ export function Settings() {
                         {ROLE_OPTIONS.map(r => <option key={r.id} value={r.id}>{r.label}</option>)}
                       </select>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-2">
                       {resetConfirm === user.id ? (
                         <div className="flex items-center gap-1.5">
                           <input
@@ -235,18 +235,18 @@ export function Settings() {
                         </button>
                       )}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-2">
                       {user.mustChangePassword ? (
-                        <span className="text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                        <span className="inline-block whitespace-nowrap text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
                           1º acesso pendente
                         </span>
                       ) : (
-                        <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                        <span className="inline-block whitespace-nowrap text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
                           Ativo
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-2">
                       {deleteConfirm === user.id ? (
                         <div className="flex items-center gap-1.5">
                           <span className="text-xs text-red-600">Excluir?</span>
