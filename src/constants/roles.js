@@ -66,6 +66,9 @@ export const SEED_USERS = [
   { id:'u4', name:'Diego Faria', email:'diego.faria@stone.com.br', role:'visitante',   avatar:'DF', passwordHash:null, mustChangePassword:true  },
   // Admin — senha "Pau331331+" (SHA-256). mustChangePassword:false → entra direto.
   { id:'u5', name:'Paulo Vidal', email:'paulo.vidal@stone.com.br', role:'admin',       avatar:'PV', passwordHash:'b0fe161a3c504561fa6d235bd57adf9a7b969ceb9f90b3660ac21199b35df996', mustChangePassword:false },
+  // Usuários reais liberados (embutidos no build p/ valer em qualquer navegador).
+  // Senha provisória "Stone@2026" (SHA-256) — trocada no 1º acesso.
+  { id:'u6', name:'Joseli Jesus', email:'joseli.jesus@stone.com.br', role:'comprador', avatar:'JJ', passwordHash:'4e106104910db5c61471d9b6ad2c68d31a55044dca33f1dc3ae4ebb23147ac0c', mustChangePassword:true },
 ]
 
 // Alias retrocompat — o restante do código importa DEMO_USERS.

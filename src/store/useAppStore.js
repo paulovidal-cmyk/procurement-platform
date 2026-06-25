@@ -556,6 +556,15 @@ const useAppStore = create(
               mustChangePassword: u.mustChangePassword ?? (role !== 'admin'),
             }
           })
+          // Mescla usuários-semente ausentes (por e-mail). Sem backend, a lista
+          // oficial vive no código: assim novos usuários embutidos no build
+          // aparecem mesmo em navegadores que já tinham estado salvo.
+          const existentes = new Set(state.allUsers.map(u => u.email.toLowerCase()))
+          for (const seed of DEMO_USERS) {
+            if (!existentes.has(seed.email.toLowerCase())) {
+              state.allUsers.push({ ...seed })
+            }
+          }
         }
         // Sync currentUser with allUsers (for updated fields)
         if (state.currentUser && state.allUsers) {
