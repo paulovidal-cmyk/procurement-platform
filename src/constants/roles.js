@@ -50,19 +50,21 @@ export const ROLES = {
 }
 
 /**
- * Usuários-semente da plataforma.
+ * Lista de ACESSO AUTORIZADO da plataforma (allowlist).
  *
- * Acesso oficial: qualquer e-mail @stone.com.br faz AUTO-CADASTRO no 1º acesso
- * (ver selfRegister em useAppStore) e nasce como "comprador". Por isso o seed
- * guarda apenas contas reais já conhecidas — admin(s) e exceções de perfil.
- * Não deixar contas de exemplo com perfil elevado: elas poderiam ser
- * reivindicadas por quem tem o e-mail correspondente.
+ * Sem backend, esta lista (no código + deploy) é a única "portaria" que vale em
+ * qualquer navegador. SÓ e-mails aqui presentes conseguem entrar. Cada pessoa
+ * define a própria senha no 1º acesso (passwordHash:null → tela "criar senha").
+ * NÃO há auto-cadastro: e-mail fora da lista é bloqueado.
  *
+ * Para liberar alguém: adicionar uma linha aqui e publicar (deploy).
  * Hashes são SHA-256 (ver algorithms/crypto.js).
  */
 export const SEED_USERS = [
   // Admin — senha "Pau331331+" (SHA-256). mustChangePassword:false → entra direto.
-  { id:'u5', name:'Paulo Vidal', email:'paulo.vidal@stone.com.br', role:'admin', avatar:'PV', passwordHash:'b0fe161a3c504561fa6d235bd57adf9a7b969ceb9f90b3660ac21199b35df996', mustChangePassword:false },
+  { id:'u5', name:'Paulo Vidal',  email:'paulo.vidal@stone.com.br',  role:'admin',     avatar:'PV', passwordHash:'b0fe161a3c504561fa6d235bd57adf9a7b969ceb9f90b3660ac21199b35df996', mustChangePassword:false },
+  // Autorizados — sem senha: definem no 1º acesso.
+  { id:'u6', name:'Joseli Jesus', email:'joseli.jesus@stone.com.br', role:'comprador', avatar:'JJ', passwordHash:null, mustChangePassword:false },
 ]
 
 // Alias retrocompat — o restante do código importa DEMO_USERS.

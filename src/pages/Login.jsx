@@ -12,7 +12,7 @@ const TOOLS = [
 
 export function Login() {
   const login        = useAppStore(s => s.login)
-  const selfRegister = useAppStore(s => s.selfRegister)
+  const claimAccount = useAppStore(s => s.claimAccount)
   const allUsers     = useAppStore(s => s.allUsers)
 
   const [email,    setEmail]    = useState('')
@@ -23,21 +23,20 @@ export function Login() {
   const [errorMsg, setErrorMsg] = useState('')
 
   const lc = email.trim().toLowerCase()
-  const isStone = lc.endsWith('@stone.com.br')
   const known = allUsers.find(u => u.email.toLowerCase() === lc)
-  // Modo "criar senha": e-mail @stone novo (ou conta-semente ainda sem senha).
-  const isSignup = isStone && (!known || !known.passwordHash)
+  // Modo "criar senha": e-mail AUTORIZADO (na lista) ainda sem senha (1º acesso).
+  const isFirstAccess = !!known && !known.passwordHash
   const pwdOk = password.length >= 6
 
   const handleLogin = async (e) => {
     e?.preventDefault()
     if (!email.trim() || !password.trim()) return
 
-    if (isSignup) {
+    if (isFirstAccess) {
       if (!pwdOk)              { setStatus('error'); setErrorMsg('A senha precisa ter ao menos 6 caracteres.'); return }
       if (password !== confirm) { setStatus('error'); setErrorMsg('As senhas não coincidem.'); return }
       setStatus('loading')
-      const result = await selfRegister(email, password)
+      const result = await claimAccount(email, password)
       if (result.success) setStatus('idle')
       else { setStatus('error'); setErrorMsg(result.error) }
       return
@@ -122,12 +121,12 @@ export function Login() {
             </div>
 
             <h2 className="text-2xl font-bold text-gray-900 mb-1">
-              {isSignup ? 'Criar seu acesso' : 'Entrar na plataforma'}
+              {isFirstAccess ? 'Criar seu acesso' : 'Entrar na plataforma'}
             </h2>
             <p className="text-gray-500 text-sm mb-7">
-              {isSignup
+              {isFirstAccess
                 ? 'Primeiro acesso — defina sua senha pessoal'
-                : 'Acesso restrito — use seu e-mail corporativo @stone.com.br'}
+                : 'Acesso restrito — apenas e-mails autorizados pelo administrador'}
             </p>
 
             <form onSubmit={handleLogin} className="space-y-4">
@@ -151,13 +150,13 @@ export function Login() {
               {/* Password */}
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-1.5 block">
-                  {isSignup ? 'Crie sua senha' : 'Senha'}
+                  {isFirstAccess ? 'Crie sua senha' : 'Senha'}
                 </label>
                 <div className="relative">
                   <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
                     type={showPwd ? 'text' : 'password'}
-                    placeholder={isSignup ? 'Mínimo 6 caracteres' : 'Sua senha'}
+                    placeholder={isFirstAccess ? 'Mínimo 6 caracteres' : 'Sua senha'}
                     value={password}
                     onChange={e => { setPassword(e.target.value); setStatus('idle') }}
                     className={`w-full pl-9 pr-10 py-2.5 text-sm border rounded-xl focus:outline-none focus:ring-2 transition-colors ${
@@ -169,15 +168,15 @@ export function Login() {
                     {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
                 </div>
-                {!isSignup && (
+                {!isFirstAccess && (
                   <p className="text-xs text-gray-400 mt-1">
-                    Primeiro acesso com e-mail @stone.com.br? Você cria sua senha aqui mesmo.
+                    Acesso liberado pelo administrador. No 1º acesso você define a sua senha.
                   </p>
                 )}
               </div>
 
-              {/* Confirmar senha (apenas no auto-cadastro) */}
-              {isSignup && (
+              {/* Confirmar senha (apenas no 1º acesso) */}
+              {isFirstAccess && (
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-1.5 block">Confirmar senha</label>
                   <div className="relative">
@@ -216,8 +215,8 @@ export function Login() {
                   <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                 ) : (
                   <>
-                    {isSignup ? <ArrowRight size={15} /> : <Lock size={15} />}
-                    {isSignup ? 'Criar acesso e entrar' : 'Entrar na plataforma'}
+                    {isFirstAccess ? <ArrowRight size={15} /> : <Lock size={15} />}
+                    {isFirstAccess ? 'Criar acesso e entrar' : 'Entrar na plataforma'}
                   </>
                 )}
               </button>
