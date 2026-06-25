@@ -244,6 +244,48 @@ const useAppStore = create(
 
       logout: () => set({ isAuthenticated: false, currentUser: null, currentPage: 'kanban' }),
 
+      /**
+       * Auto-cadastro restrito ao domínio @stone.com.br. Cria a conta (perfil
+       * padrão "comprador") OU define a senha de uma conta-semente ainda sem
+       * senha, e já autentica. Sem backend: vale no navegador de quem cadastra.
+       */
+      selfRegister: async (email, password) => {
+        const lc = String(email).toLowerCase().trim()
+        if (!lc.endsWith('@stone.com.br')) {
+          return { success: false, error: 'Use seu e-mail corporativo @stone.com.br.' }
+        }
+        const hash = await hashPassword(password)
+        const { allUsers } = get()
+        const existing = allUsers.find(u => u.email.toLowerCase() === lc)
+
+        if (existing) {
+          if (existing.passwordHash) {
+            return { success: false, error: 'Esta conta já existe. Faça login com sua senha.' }
+          }
+          const updated = { ...existing, passwordHash: hash, mustChangePassword: false }
+          set(s => ({
+            allUsers: s.allUsers.map(u => u.id === existing.id ? updated : u),
+            isAuthenticated: true, currentUser: updated, currentPage: 'home',
+          }))
+          return { success: true }
+        }
+
+        const newUser = {
+          id: 'u-' + uuid(),
+          email: lc,
+          name: lc.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+          role: 'comprador',
+          avatar: lc.slice(0, 2).toUpperCase(),
+          passwordHash: hash,
+          mustChangePassword: false,
+        }
+        set(s => ({
+          allUsers: [...s.allUsers, newUser],
+          isAuthenticated: true, currentUser: newUser, currentPage: 'home',
+        }))
+        return { success: true }
+      },
+
       changePassword: async (userId, newPassword) => {
         const hash = await hashPassword(newPassword)
         set(s => ({
