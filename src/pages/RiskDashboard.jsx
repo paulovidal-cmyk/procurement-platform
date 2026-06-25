@@ -7,6 +7,7 @@ import {
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts'
 import useRiskStore from '../store/useRiskStore.js'
 import { calcGlobalRadar, riskColor, riskBg, riskLabel, fmtSpend } from '../algorithms/risk.js'
+import { RiskHelpModal } from '../components/risk/RiskHelpModal.jsx'
 
 const PAGE_SIZE = 10
 const BRAND = '#00D26A'
@@ -239,6 +240,7 @@ export function RiskDashboard() {
   const [expandedId, setExpandedId] = useState(null)
   const [sortKey,    setSortKey]    = useState('spend')
   const [sortDir,    setSortDir]    = useState('desc')
+  const [helpOpen,   setHelpOpen]   = useState(false)
 
   // ── Filter cascades ──────────────────────────────────────────────────────────
   const categorias = useMemo(() =>
@@ -394,11 +396,17 @@ export function RiskDashboard() {
                       Média ponderada pelo spend · {filtered.length} fornecedor{filtered.length !== 1 ? 'es' : ''}
                     </p>
                   </div>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold flex-shrink-0"
-                    style={{ background: riskBg(globalRadar.geral), color: heroColor }}>
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: heroColor }} />
-                    {heroLabel.toUpperCase()}
-                  </span>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <button onClick={() => setHelpOpen(true)}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold text-muted border border-line hover:bg-gray-50 hover:text-ink transition-all">
+                      <Info size={12} /> Como funciona?
+                    </button>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold"
+                      style={{ background: riskBg(globalRadar.geral), color: heroColor }}>
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: heroColor }} />
+                      {heroLabel.toUpperCase()}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Dimension breakdown — 3 progress bars */}
@@ -590,6 +598,8 @@ export function RiskDashboard() {
 
         </div>
       </div>
+
+      <RiskHelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
     </div>
   )
 }
