@@ -177,7 +177,7 @@ const useAppStore = create(
       currentUser: null,
 
       // Navigation
-      currentPage: 'kanban',
+      currentPage: 'home',
 
       // UI — sidebar dos hubs (recolhida ou expandida)
       sidebarCollapsed: false,
@@ -238,7 +238,7 @@ const useAppStore = create(
           return { success: false, error: 'Senha incorreta.' }
         }
 
-        set({ isAuthenticated: true, currentUser: user, currentPage: 'kanban' })
+        set({ isAuthenticated: true, currentUser: user, currentPage: 'home' })
         return { success: true }
       },
 
@@ -546,6 +546,8 @@ const useAppStore = create(
       }),
       onRehydrateStorage: () => (state) => {
         if (!state) return
+        // Toda entrada no site começa na Home (independe da última página visitada).
+        state.currentPage = 'home'
         if (state.schemaVersion !== SCHEMA_VERSION) {
           // Full reset on major version change
           state.cards         = SEED_CARDS

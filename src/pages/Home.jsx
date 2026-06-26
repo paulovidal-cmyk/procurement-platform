@@ -1,9 +1,9 @@
 import {
   ShoppingCart, BarChart2, ScanLine, ShieldCheck, ArrowUpRight,
-  TrendingDown, CheckCircle2, Clock, Sparkles,
+  TrendingDown, PiggyBank, Clock, Sparkles, Target,
 } from 'lucide-react'
-import { LineChart, Line, ResponsiveContainer } from 'recharts'
 import useAppStore from '../store/useAppStore.js'
+import homeHero from '../assets/home-hero.mp4'
 
 const MODULES = [
   {
@@ -24,15 +24,11 @@ const MODULES = [
   },
 ]
 
-const SAVING_SERIES = [
-  { v: 102 }, { v: 118 }, { v: 110 }, { v: 134 }, { v: 142 },
-  { v: 138 }, { v: 156 }, { v: 161 }, { v: 158 }, { v: 168 }, { v: 172 }, { v: 176 },
-]
-
 const HIGHLIGHTS = [
-  { icon: CheckCircle2, label: 'Processos ativos', value: '7',     sub: 'em andamento' },
-  { icon: Clock,        label: 'Lead time médio',  value: '4.2d',  sub: 'até aprovação' },
-  { icon: TrendingDown, label: 'Spend YTD',        value: 'R$ 12.4M', sub: '+8% vs 2024' },
+  { icon: PiggyBank,    label: 'Saving YTD',      value: 'R$ 48M',     sub: '76% da meta · R$ 63M' },
+  { icon: Clock,        label: 'TMA',             value: '7,5d',       sub: 'tempo médio de atendimento' },
+  { icon: Target,       label: 'SLA',             value: '94%',        sub: 'dentro do prazo' },
+  { icon: TrendingDown, label: 'Spend YTD 2026',  value: 'R$ 1,37 bi', sub: '+8% vs 2025' },
 ]
 
 export function Home() {
@@ -44,30 +40,22 @@ export function Home() {
     <div className="h-full overflow-y-auto bg-white">
       <div className="max-w-6xl mx-auto px-6 py-6 space-y-6">
 
-          {/* Hero card — saving big number + sparkline */}
-          <div className="rounded-2xl border border-line bg-white p-6">
-            <div className="flex items-start justify-between gap-6">
-              <div>
-                <p className="text-xs font-medium text-muted">Saving YTD</p>
-                <p className="text-[42px] font-extrabold text-ink leading-none mt-1 tracking-tight">R$ 176k</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold"
-                    style={{ background: 'rgba(16,185,129,0.10)', color: '#0e9971' }}>
-                    <ArrowUpRight size={11} strokeWidth={2.5} />+23%
-                  </span>
-                  <span className="text-[11px] text-subtle">vs meta YTD</span>
-                </div>
-              </div>
-              <div className="hidden sm:block w-48 h-14">
-                <ResponsiveContainer>
-                  <LineChart data={SAVING_SERIES} margin={{ top: 4, right: 0, bottom: 4, left: 0 }}>
-                    <Line type="monotone" dataKey="v" stroke="#00D26A" strokeWidth={2} dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+          {/* Top banner — vídeo (30% inferior cortado: 1920×756) */}
+          <div className="rounded-2xl border border-line overflow-hidden bg-gray-50">
+            <video
+              src={homeHero}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full object-cover object-top block"
+              style={{ aspectRatio: '1920 / 756' }}
+            />
+          </div>
 
-            <div className="grid grid-cols-3 gap-4 mt-6 pt-5 border-t border-line">
+          {/* Indicadores */}
+          <div className="rounded-2xl border border-line bg-white p-6">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {HIGHLIGHTS.map(h => {
                 const Icon = h.icon
                 return (

@@ -22,13 +22,15 @@ const BRAND = '#00D26A'
 function RadarValueTick({ x, y, payload, textAnchor, valueMap }) {
   const val = valueMap?.[payload.value]
   return (
-    <g>
-      <text x={x} y={y} textAnchor={textAnchor} dominantBaseline="central"
-        fontSize={11} fontWeight={600} fill="#5B6B66">
+    <g style={{ paintOrder: 'stroke' }}>
+      <text x={x} y={y - 2} textAnchor={textAnchor} dominantBaseline="central"
+        fontSize={11} fontWeight={700} fill="#5B6B66"
+        stroke="#fff" strokeWidth={3} strokeLinejoin="round">
         {payload.value}
       </text>
-      <text x={x} y={y + 12} textAnchor={textAnchor} dominantBaseline="central"
-        fontSize={11} fontWeight={800} fill={riskColor(val)} className="tabular-nums">
+      <text x={x} y={y + 14} textAnchor={textAnchor} dominantBaseline="central"
+        fontSize={16} fontWeight={900} fill={riskColor(val)} className="tabular-nums"
+        stroke="#fff" strokeWidth={3.5} strokeLinejoin="round">
         {val != null ? Math.round(val) : '—'}
       </text>
     </g>
@@ -339,10 +341,11 @@ export function RiskDashboard() {
               {/* LEFT — Big radar with score in the middle */}
               <div className="col-span-12 lg:col-span-4 relative flex items-center justify-center py-5 lg:border-r border-line"
                 style={{ background: 'linear-gradient(135deg, rgba(0,210,106,0.06) 0%, rgba(255,255,255,0) 60%)' }}>
-                <div className="relative" style={{ width: 280, height: 230 }}>
+                <div className="relative w-full max-w-[380px]" style={{ height: 310 }}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="62%">
-                      <PolarGrid gridType="polygon" stroke="rgba(15,23,23,0.08)" />
+                    <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="80%"
+                      margin={{ top: 26, right: 40, bottom: 26, left: 40 }}>
+                      <PolarGrid gridType="polygon" stroke="rgba(15,23,23,0.14)" />
                       <PolarAngleAxis
                         dataKey="subject"
                         tick={<RadarValueTick valueMap={radarValueMap} />}
@@ -352,9 +355,9 @@ export function RiskDashboard() {
                         isAnimationActive={false}
                         stroke={BRAND}
                         fill={BRAND}
-                        fillOpacity={0.22}
-                        strokeWidth={2}
-                        dot={{ fill: BRAND, r: 3 }}
+                        fillOpacity={0.38}
+                        strokeWidth={2.5}
+                        dot={{ fill: BRAND, r: 3.5 }}
                       />
                     </RadarChart>
                   </ResponsiveContainer>
@@ -362,14 +365,14 @@ export function RiskDashboard() {
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <div className="flex flex-col items-center justify-center rounded-full text-white shadow-xl"
                       style={{
-                        width: 76, height: 76,
+                        width: 60, height: 60,
                         background: `radial-gradient(circle at 30% 30%, ${heroColor}, ${heroColor}dd)`,
-                        boxShadow: `0 6px 20px ${heroColor}55, 0 0 0 4px ${heroColor}1a`,
+                        boxShadow: `0 5px 18px ${heroColor}66, 0 0 0 4px ${heroColor}1a`,
                       }}>
-                      <span className="text-[28px] font-black leading-none tracking-tight">
+                      <span className="text-[22px] font-black leading-none tracking-tight">
                         {globalRadar.geral.toFixed(0)}
                       </span>
-                      <span className="text-[8px] font-bold leading-none opacity-90 mt-0.5 uppercase tracking-wider">
+                      <span className="text-[7px] font-bold leading-none opacity-90 mt-0.5 uppercase tracking-wider">
                         média
                       </span>
                     </div>

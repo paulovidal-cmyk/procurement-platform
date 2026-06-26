@@ -6,6 +6,7 @@ import { NotificationBell } from '../notifications/NotificationBell.jsx'
 import { ROLES } from '../../constants/roles.js'
 import { accessLevel, ACCESS } from '../../constants/modules.js'
 import useAppStore from '../../store/useAppStore.js'
+import logoUrl from '../../assets/logo.png'
 import { cn } from '../../utils/cn.js'
 
 const NAV = [
@@ -22,10 +23,10 @@ function StoneLogo({ onClick }) {
     <button onClick={onClick} className="flex items-center flex-shrink-0 focus:outline-none">
       {!imgError ? (
         <img
-          src="/logo.svg"
-          alt="StoneCo"
+          src={logoUrl}
+          alt="Resolve Compras"
           onError={() => setImgError(true)}
-          className="h-7 w-auto object-contain"
+          className="h-10 w-auto object-contain"
         />
       ) : (
         <span className="text-lg font-black tracking-tight text-ink">stone.</span>
